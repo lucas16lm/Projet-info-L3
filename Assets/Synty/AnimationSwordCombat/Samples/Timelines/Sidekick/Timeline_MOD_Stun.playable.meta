@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: dcdb3e1f1d70182428a99b52032498ad
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 291806
+  packageName: Synty ANIMATION - Sword Combat
+  packageVersion: 1.2.0
+  assetPath: Assets/Synty/AnimationSwordCombat/Samples/Timelines/Sidekick/Timeline_MOD_Stun.playable
+  uploadId: 770844

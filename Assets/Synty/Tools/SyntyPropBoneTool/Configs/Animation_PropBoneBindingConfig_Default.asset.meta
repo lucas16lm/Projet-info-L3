@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1384ae594d3d94bfc9f70fc0e7dc57ca
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 291806
+  packageName: Synty ANIMATION - Sword Combat
+  packageVersion: 1.2.0
+  assetPath: Assets/Synty/Tools/SyntyPropBoneTool/Configs/Animation_PropBoneBindingConfig_Default.asset
+  uploadId: 770844

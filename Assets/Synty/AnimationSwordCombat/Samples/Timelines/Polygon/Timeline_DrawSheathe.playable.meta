@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 214da9d0c49c64045bf408c8323dd0ac
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 291806
+  packageName: Synty ANIMATION - Sword Combat
+  packageVersion: 1.2.0
+  assetPath: Assets/Synty/AnimationSwordCombat/Samples/Timelines/Polygon/Timeline_DrawSheathe.playable
+  uploadId: 770844
