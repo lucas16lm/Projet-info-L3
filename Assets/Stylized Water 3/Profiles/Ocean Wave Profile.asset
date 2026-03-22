@@ -96,6 +96,7 @@ MonoBehaviour:
     amplitudeByLength: 0
     minMaxSteepness: {x: 10, y: 10}
     steepnessByLength: 1
+    directionBase: 0
     directionAngleVariation: 360
   layers:
   - enabled: 1
@@ -140,7 +141,7 @@ MonoBehaviour:
     mode: 0
     direction: -96.874664
     origin: {x: 0, y: 0}
-  - enabled: 1
+  - enabled: 0
     waveLength: 8.436981
     amplitude: 0.1696281
     steepness: 23.70516
@@ -166,7 +167,7 @@ Texture2D:
     serializedVersion: 2
     Hash: 00000000000000000000000000000000
   m_IsAlphaChannelOptional: 0
-  serializedVersion: 3
+  serializedVersion: 4
   m_Width: 8
   m_Height: 2
   m_CompleteImageSize: 128
@@ -195,7 +196,7 @@ Texture2D:
   m_ColorSpace: 0
   m_PlatformBlob: 
   image data: 128
-  _typelessdata: 672f714ca7ba003c5f2d914e04c6003cfc2fde496b3d003c46321450aac3003c5e30934c1043003c17323452c3be003c6e313848ad45003c42301f4b6e37003c0000000000008847000000000000b146000000000000b449000000000000b1460000000000005147000000000000b146000000000000ef4b000000000000b348
+  _typelessdata: 8d2b714ca7ba003c7a29914e04c6003c122cde496b3d003c662e1450aac3003c742c934c1043003c372e3452c3be003c892d3848ad450000582c1f4b6e37003c000000000000de45000000000000374500000000000071480000000000003745000000000000b34500000000000037450000000000002e4a0000000000005247
   m_StreamData:
     serializedVersion: 2
     offset: 0
