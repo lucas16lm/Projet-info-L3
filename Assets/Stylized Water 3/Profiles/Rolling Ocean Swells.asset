@@ -134,12 +134,12 @@ Texture2D:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Default Wave Profile 1 Shader Parameters
+  m_Name: Rolling Ocean Swells Shader Parameters
   m_ImageContentsHash:
     serializedVersion: 2
     Hash: 00000000000000000000000000000000
   m_IsAlphaChannelOptional: 0
-  serializedVersion: 3
+  serializedVersion: 4
   m_Width: 4
   m_Height: 2
   m_CompleteImageSize: 64
@@ -168,7 +168,7 @@ Texture2D:
   m_ColorSpace: 0
   m_PlatformBlob: 
   image data: 64
-  _typelessdata: f341f3510000003c063b0051253a003cb73066465741003c952f1a49d7bc003cadcd93d10000a938000000000000003d000000000000003d000000000000b13b
+  _typelessdata: f341f3510000003c063b00510443003cb73066465741003c952f1a49d7bc003cadcd93d10000a938000000000000003d000000000000003d000000000000b13b
   m_StreamData:
     serializedVersion: 2
     offset: 0

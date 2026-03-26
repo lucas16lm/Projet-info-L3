@@ -1,21 +1,20 @@
-using StylizedWater3;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Ship : MonoBehaviour
 {
     private InputAction moveAction;
-    [SerializeField] private AlignToWater aligner;
     private Rigidbody rb;
-    
 
+    public float moveForce = 40f;
     public float maxSpeed = 7f;
-    public float acceleration = 2f;
-    public float deceleration = 1f;
-    public float turnSpeed = 30f;
+    public float turnTorque = 15f;
+
 
     private float currentSpeed = 0f;
     private Vector2 moveInput;
+    public List<Buoy> buoyes;
 
     private void Awake()
     {
@@ -39,33 +38,28 @@ public class Ship : MonoBehaviour
     {
         HandleSteering();
         HandleMovement();
+        foreach (Buoy buoy in buoyes) buoy.Move();
     }
 
     private void HandleMovement()
     {
         if (moveInput.y > 0)
         {
-            currentSpeed = Mathf.MoveTowards(currentSpeed, maxSpeed, acceleration * Time.fixedDeltaTime);
-        }
-        else
-        {
-            currentSpeed = Mathf.MoveTowards(currentSpeed, 0, deceleration * Time.fixedDeltaTime);
-        }
+            rb.AddForce(transform.forward * moveForce * moveInput.y, ForceMode.Force);
 
-        Vector3 forward = transform.forward;
-        forward.y = 0;
-        forward.Normalize();
-
-        Vector3 newPosition = rb.position + (forward * currentSpeed * Time.fixedDeltaTime);
-        rb.MovePosition(newPosition);
+            if (rb.velocity.magnitude > maxSpeed)
+            {
+                rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
+            }
+        }
 
     }
 
     private void HandleSteering()
     {
-        if(moveInput.x != 0)
+        if (moveInput.x != 0)
         {
-            aligner.rotation += moveInput.x * turnSpeed * Time.fixedDeltaTime;
+            rb.AddTorque(transform.up * turnTorque * moveInput.x, ForceMode.Force);
         }
     }
 
