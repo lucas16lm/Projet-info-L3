@@ -5,16 +5,14 @@ using UnityEngine.InputSystem;
 public class Ship : MonoBehaviour
 {
     private InputAction moveAction;
+
     private Rigidbody rb;
 
-    public float moveForce = 40f;
     public float maxSpeed = 7f;
-    public float turnTorque = 15f;
 
 
     private float currentSpeed = 0f;
     private Vector2 moveInput;
-    public List<Buoy> buoyes;
 
     private void Awake()
     {
@@ -22,54 +20,37 @@ public class Ship : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    private void OnEnable()
-    {
-        moveAction.performed += ReadInput;
-        moveAction.canceled += ResetInput;
-    }
 
-    private void OnDisable()
-    {
-        moveAction.performed -= ReadInput;
-        moveAction.canceled -= ResetInput;
-    }
 
     private void FixedUpdate()
     {
-        HandleSteering();
-        HandleMovement();
-        foreach (Buoy buoy in buoyes) buoy.Move();
+        ApplyLateralDrag();
+        ControlSpeed();
     }
 
-    private void HandleMovement()
+    private void ApplyLateralDrag()
     {
-        if (moveInput.y > 0)
-        {
-            rb.AddForce(transform.forward * moveForce * moveInput.y, ForceMode.Force);
-
-            if (rb.velocity.magnitude > maxSpeed)
-            {
-                rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
-            }
-        }
-
+        Vector3 lateralVelocity = transform.right * Vector3.Dot(rb.linearVelocity, transform.right);
+        float lateralFriction = 0.8f;
+        rb.AddForce(-lateralVelocity * lateralFriction, ForceMode.Acceleration);
     }
 
-    private void HandleSteering()
+    private void ControlSpeed()
     {
-        if (moveInput.x != 0)
+        if (rb.linearVelocity.magnitude > maxSpeed)
         {
-            rb.AddTorque(transform.up * turnTorque * moveInput.x, ForceMode.Force);
+            rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
         }
     }
 
-    private void ReadInput(InputAction.CallbackContext context)
+
+    public void AddForce(Vector3 force)
     {
-        moveInput = context.ReadValue<Vector2>();
+        rb.AddForce(force, ForceMode.Force);
     }
 
-    private void ResetInput(InputAction.CallbackContext context)
+    public void AddTorque(Vector3 torque)
     {
-        moveInput = Vector2.zero;
+        rb.AddTorque(torque, ForceMode.Force);
     }
 }

@@ -56,6 +56,8 @@ public class PlayerMovementController : MonoBehaviour
         sprintAction.performed -= StartSprint;
         sprintAction.canceled -= CancelSprint;
         characterController.enabled = false;
+
+        isOnShip = false;
     }
 
     private void LateUpdate()

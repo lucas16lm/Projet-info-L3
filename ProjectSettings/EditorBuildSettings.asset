@@ -9,5 +9,6 @@ EditorBuildSettings:
     path: Assets/Synty/PolygonPirates/Scenes/Demo.unity
     guid: bfa5d56a0eb50f04ba05cb6891c91214
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: e63a448d525b1ac4c877ad4bf64caeb3, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
