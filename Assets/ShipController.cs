@@ -45,12 +45,8 @@ public class ShipController : MonoBehaviour
 
     private void HandleMovement()
     {
-        if (moveInput.y > 0)
-        {
-            Vector3 flatForward = transform.forward;
-            flatForward.y = 0;
-            ship.AddForce(flatForward * moveForce * moveInput.y);
-        }
+        float multiplier = moveInput.y >= 0 ? 1f : 0.25f;
+        ship.AddForce(transform.forward * moveForce * moveInput.y * multiplier);
 
     }
 
@@ -66,7 +62,9 @@ public class ShipController : MonoBehaviour
     public void EnterShip(Transform pilot)
     {
         this.pilot = pilot;
+        pilot.parent = transform;
         enabled = true;
+        ship.SetCruiseView();
     }
 
     private void ExitShip(InputAction.CallbackContext context)
@@ -78,6 +76,7 @@ public class ShipController : MonoBehaviour
         
         enabled = false;
         pilot = null;
+        ship.UnsetCruiseView();
     }
 
     private void ReadInput(InputAction.CallbackContext context)

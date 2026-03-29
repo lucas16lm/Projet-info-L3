@@ -18,14 +18,12 @@ Material:
   - _INTERSECTION_FOAM
   - _NORMALMAP
   - _REFRACTION
-  - _SURFACE_FOAM_SINGLE
   - _TRANSLUCENCY
   - _WAVES
   m_InvalidKeywords:
   - ADVANCED_LIGHTING
   - _DEPTHEXP_ON
   - _DEPTH_TEX
-  - _FOAMON_ON
   - _INTERSECTIONSHARP_ON
   - _RECEIVEDYNAMICEFFECTSFOAM_ON
   - _RECEIVEDYNAMICEFFECTSHEIGHT_ON
@@ -188,7 +186,7 @@ Material:
     - _FoamClippingDynamic: 0
     - _FoamDistanceOn: 0
     - _FoamDistortion: 0
-    - _FoamOn: 1
+    - _FoamOn: 0
     - _FoamOpacity: 1
     - _FoamSize: 0.314
     - _FoamSpeed: -0.5
@@ -331,7 +329,7 @@ Material:
     - _DistanceNormalsFadeDist: {r: 10, g: 128.07892, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
-    - _FoamCrestMinMaxHeight: {r: 0.5837838, g: 0.8046726, b: 0, a: 0}
+    - _FoamCrestMinMaxHeight: {r: 0.8910127, g: 1.1119015, b: 0, a: 0}
     - _FoamTiling: {r: 0.089999974, g: 0.089999974, b: 0, a: 0}
     - _HorizonColor: {r: 0.50953066, g: 5.8970256, b: 6.3541465, a: 0}
     - _IntersectionColor: {r: 1, g: 1, b: 1, a: 1}

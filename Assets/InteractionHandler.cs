@@ -30,7 +30,11 @@ public class InteractionHandler : MonoBehaviour
             return;
         }
 
-        currentTrigger.transform.GetComponent<PilotShip>().Interact(transform);
+        IInteractable interactable = currentTrigger.transform.GetComponent<IInteractable>();
+        if (interactable != null)
+        {
+            interactable.Interact(transform);
+        }
 
     }
 

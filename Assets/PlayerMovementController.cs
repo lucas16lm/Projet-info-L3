@@ -1,6 +1,9 @@
 using System;
+using Unity.VisualScripting;
+using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 public class PlayerMovementController : MonoBehaviour
 {
@@ -65,6 +68,7 @@ public class PlayerMovementController : MonoBehaviour
         CalculateGravity();
         CalculateHorizontalMovement();
         LookAtMovement();
+
         characterController.Move(velocity * Time.deltaTime + ComputeDeltaShip());
     }
 
@@ -162,7 +166,6 @@ public class PlayerMovementController : MonoBehaviour
         }
         return Vector3.zero;
     }
-
 
     public bool IsGrounded()
     {

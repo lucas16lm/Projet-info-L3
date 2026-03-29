@@ -8,7 +8,6 @@ public class PilotShip : MonoBehaviour, IInteractable
     {
         player.GetComponent<PlayerMovementController>().enabled = false;
         player.position = new Vector3(transform.position.x, player.transform.position.y, transform.position.z);
-        player.parent = transform;
         player.rotation = Quaternion.LookRotation(transform.forward);
         associatedTransform.GetComponent<ShipController>().EnterShip(player);
     }

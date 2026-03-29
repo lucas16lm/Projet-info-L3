@@ -1,9 +1,11 @@
+using Cinemachine;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Ship : MonoBehaviour
 {
+    private CinemachineFreeLook freeLookCam;
     private InputAction moveAction;
 
     private Rigidbody rb;
@@ -18,6 +20,7 @@ public class Ship : MonoBehaviour
     {
         moveAction = InputSystem.actions.FindAction("Move");
         rb = GetComponent<Rigidbody>();
+        freeLookCam = GetComponentInChildren<CinemachineFreeLook>();
     }
 
 
@@ -52,5 +55,15 @@ public class Ship : MonoBehaviour
     public void AddTorque(Vector3 torque)
     {
         rb.AddTorque(torque, ForceMode.Force);
+    }
+
+    public void SetCruiseView()
+    {
+        freeLookCam.Priority = 15;
+    }
+
+    public void UnsetCruiseView()
+    {
+        freeLookCam.Priority = 0;
     }
 }
