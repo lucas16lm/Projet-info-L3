@@ -5,14 +5,13 @@ using UnityEngine.InputSystem;
 public class ShipController : MonoBehaviour
 {
     private Ship ship;
+    private ShipMovement mover;
     private Transform pilot;
-    [SerializeField] private Transform helm;
 
     private InputAction moveAction;
     private InputAction exitAction;
+    private InputAction cruiseAction;
 
-    public float moveForce = 40f;
-    public float turnTorque = 15f;
 
     private Vector2 moveInput;
 
@@ -21,43 +20,36 @@ public class ShipController : MonoBehaviour
         moveAction.performed += ReadInput;
         moveAction.canceled += ResetInput;
         exitAction.performed += ExitShip;
+        cruiseAction.performed += ToggleCruise;
     }
 
     private void OnDisable()
     {
+        moveInput = Vector2.zero;
+        mover.SetMoveInput(moveInput);
+
         moveAction.performed -= ReadInput;
         moveAction.canceled -= ResetInput;
         exitAction.performed -= ExitShip;
+        cruiseAction.performed -= ToggleCruise;
     }
 
     private void Awake()
     {
         moveAction = InputSystem.actions.FindAction("Move");
         exitAction = InputSystem.actions.FindAction("Interact");
+        cruiseAction = InputSystem.actions.FindAction("Cruise");
+
         ship = GetComponent<Ship>();
+        mover = GetComponent<ShipMovement>();
     }
 
     private void FixedUpdate()
     {
-        HandleSteering();
-        HandleMovement();
+        mover.SetMoveInput(moveInput);
     }
 
-    private void HandleMovement()
-    {
-        float multiplier = moveInput.y >= 0 ? 1f : 0.25f;
-        ship.AddForce(transform.forward * moveForce * moveInput.y * multiplier);
-
-    }
-
-    private void HandleSteering()
-    {
-        if (moveInput.x != 0)
-        {
-            ship.AddTorque(transform.up * turnTorque * moveInput.x);
-            helm.Rotate(helm.forward, moveInput.x * Time.fixedDeltaTime * 70, Space.World);
-        }
-    }
+    
 
     public void EnterShip(Transform pilot)
     {
@@ -87,5 +79,10 @@ public class ShipController : MonoBehaviour
     private void ResetInput(InputAction.CallbackContext context)
     {
         moveInput = Vector2.zero;
+    }
+
+    private void ToggleCruise(InputAction.CallbackContext context)
+    {
+        mover.ToggleCruise();
     }
 }
