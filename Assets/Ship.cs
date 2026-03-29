@@ -5,9 +5,14 @@ using UnityEngine.InputSystem;
 
 public class Ship : MonoBehaviour
 {
+    [SerializeField] List<GameObject> sailsUp;
+    [SerializeField] List<GameObject> sailsDown;
+
+    private int currentSailLevel = 0;
+
+
     private CinemachineFreeLook freeLookCam;
     private InputAction moveAction;
-
     private Rigidbody rb;
 
     public float maxSpeed = 7f;

@@ -3,9 +3,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
-using UnityEngine.UIElements;
 using static Unity.Mathematics.noise;
 
 public class MapGenerator : MonoBehaviour
