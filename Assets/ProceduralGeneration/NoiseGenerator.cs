@@ -4,6 +4,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public static class NoiseGenerator
 {
@@ -77,6 +78,7 @@ public struct FractalSimplexJob : IJobParallelFor
     public int octaves;
     public float persistence;
     public float lacunarity;
+    public float power;
 
     public void Execute(int index)
     {
@@ -92,7 +94,9 @@ public struct FractalSimplexJob : IJobParallelFor
 
         for (int i = 0; i < octaves; i++)
         {
-            float simplex = noise.snoise(worldPos * scale * frequency);
+            float simplex = noise.snoise(worldPos * (1f/scale) * frequency);
+            simplex = (simplex + 1) * 0.5f;
+
             noiseHeight += simplex * amplitude;
             totalAmplitude += amplitude;
 
@@ -100,34 +104,9 @@ public struct FractalSimplexJob : IJobParallelFor
             frequency *= lacunarity;
         }
 
-        float finalValue = (noiseHeight / totalAmplitude + 1f) * 0.5f;
+        float finalValue = noiseHeight / totalAmplitude;
+        finalValue = math.pow(finalValue, power);
         result[index] = math.saturate(finalValue);
-    }
-}
-
-[BurstCompile]
-public struct WorleyMaskJob : IJobParallelFor
-{
-    [WriteOnly] public NativeArray<float> result;
-    public int width;
-    public float scale;
-    public float xOffset;
-    public float yOffset;
-    public float power;
-
-    public void Execute(int index)
-    {
-        int x = index % width;
-        int y = index / width;
-
-        float invScale = 1.0f / math.max(scale, 0.0001f);
-        float2 samplePos = new float2(xOffset + x, yOffset + y) * invScale;
-
-        float noiseValue = noise.cellular(samplePos).x;
-
-        noiseValue = 1 - math.saturate(noiseValue);
-        noiseValue = math.pow(noiseValue, power);
-        result[index] = math.saturate(noiseValue);
     }
 }
 
@@ -136,32 +115,19 @@ public struct FallOfJob : IJobParallelFor
 {
     [WriteOnly] public NativeArray<float> result;
     public int p;
-    public int width;
+    public int size;
     public int centerX;
     public int centerY;
     public float radius;
-    public float warpScale;
-    public float warpStrength;
+    public float power;
 
     public void Execute(int index)
     {
-        int x = index % width;
-        int y = index / width;
+        int x = index % size;
+        int y = index / size;
 
-        float2 noisePos = new float2(x, y) * warpScale;
-        float angle = noise.snoise(noisePos) * warpStrength;
-
-        float relX = x - centerX;
-        float relY = y - centerY;
-
-        float cosA = math.cos(angle);
-        float sinA = math.sin(angle);
-
-        float twistedX = relX * cosA - relY * sinA;
-        float twistedY = relX * sinA + relY * cosA;
-
-        float dx = math.abs(twistedX);
-        float dy = math.abs(twistedY);
+        float dx = math.abs(x - centerX);
+        float dy = math.abs(y - centerY);
 
 
         float d = 0;
@@ -181,6 +147,7 @@ public struct FallOfJob : IJobParallelFor
         }
 
         float noiseValue = 1.0f - math.smoothstep(0, radius, d);
+        noiseValue = math.pow(noiseValue, power);
 
         result[index] = math.saturate(noiseValue);
     }
@@ -194,6 +161,6 @@ public struct ApplyMaskJob : IJobParallelFor
 
     public void Execute(int index)
     {
-        result[index] = math.saturate(result[index] * mask[index]);
+        result[index] = math.saturate(result[index] - (1 - mask[index]));
     }
 }

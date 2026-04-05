@@ -3,10 +3,13 @@ using UnityEngine;
 
 public class ChunkManager : MonoBehaviour
 {
+    [SerializeField] private ProceduralSettings _settings;
+    public ProceduralSettings Settings => _settings;
+
     [SerializeField] private int chunkSize = 16;
     [SerializeField] private int radius = 4;
 
-    [SerializeField] float scale = 10f;
+    [SerializeField] private float scale = 10f;
 
     [SerializeField] int heightMultiplier = 20;
     [SerializeField] float power = 1;
@@ -16,9 +19,9 @@ public class ChunkManager : MonoBehaviour
     private Vector2Int lastChunkCoord;
 
     [Header("Islands")]
-    [SerializeField] private float islandSize;
     [SerializeField] private int centerX;
     [SerializeField] private int centerY;
+    [SerializeField] private int p = 1;
 
     private void Start()
     {
@@ -74,14 +77,28 @@ public class ChunkManager : MonoBehaviour
                     chunkGO.transform.parent = transform;
                     chunkGO.transform.position = new Vector3(visibleChunkCoord.x * chunkSize, 0, visibleChunkCoord.y * chunkSize);
                     Chunk chunk = chunkGO.AddComponent<Chunk>();
+                    chunk.Init(visibleChunkCoord, chunkSize, this);
+
                     chunkDict.Add(visibleChunkCoord, chunk);
 
                     float worldXOffset = visibleChunkCoord.x * chunkSize;
                     float worldZOffset = visibleChunkCoord.y * chunkSize;
-                    chunk.GenerateMesh(chunkSize, scale, worldXOffset, worldZOffset, power, heightMultiplier, islandSize, centerX, centerY);
+                    chunk.GenerateMesh();
                     chunk.GetComponent<MeshRenderer>().material = mat;
                 }
             }
         }
     }
+}
+
+[System.Serializable]
+public struct ProceduralSettings
+{
+    public float scale;
+    public int octaves;
+    public float persistence;
+    public float lacunarity;
+    public float heightMultiplier;
+    [Range(0.5f, 10)] public float power;
+    [Range(0,1)] public float islandProbability;
 }

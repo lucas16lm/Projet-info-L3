@@ -16,8 +16,6 @@ public class NoiseMapVizualizer : MonoBehaviour
     [SerializeField] float radius = 1;
     [SerializeField] int centerX = 0;
     [SerializeField] int centerY = 0;
-    [SerializeField] float warpScale = 1;
-    [SerializeField] float warpStrength = 1;
 
     [Header("Height parameters")]
     public float scale;
@@ -46,12 +44,10 @@ public class NoiseMapVizualizer : MonoBehaviour
         {
             result = maskMap,
             p = p,
-            width = size,
+            size = size,
             centerX = centerX,
             centerY = centerY,
             radius = radius,
-            warpScale = warpScale,
-            warpStrength = warpStrength
         };
 
         var heightJob = new FractalSimplexJob

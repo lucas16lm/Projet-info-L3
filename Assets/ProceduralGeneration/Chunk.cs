@@ -6,18 +6,30 @@ using UnityEngine.Rendering;
 
 public class Chunk : MonoBehaviour
 {
-    public void GenerateMesh(int chunkSize, float scale, float xOffset, float yOffset, float power, float heightMultiplier, float islandSize, int centerX, int centerY)
-    {
-        // 1. Définition des tailles (TRES IMPORTANT)
-        int vertexDimension = chunkSize + 1;
-        int vertexCount = vertexDimension * vertexDimension;
-        int faceCount = chunkSize * chunkSize;
+    private ChunkManager manager;
+    private int size;
+    private Vector2Int coordinates;
+    private Unity.Mathematics.Random rd;
+    private uint localSeed;
 
-        // 2. Allocation du MeshData
+    public void Init(Vector2Int coordinates, int size, ChunkManager manager)
+    {
+        this.manager = manager;
+        this.size = size;
+        this.coordinates = coordinates;
+        localSeed = math.hash(new int2(coordinates.x, coordinates.y));
+        rd = new Unity.Mathematics.Random(localSeed);
+    }
+
+    public void GenerateMesh()
+    {
+        int vertexDimension = size + 1;
+        int vertexCount = vertexDimension * vertexDimension;
+        int faceCount = size * size;
+
         Mesh.MeshDataArray meshDataArray = Mesh.AllocateWritableMeshData(1);
         Mesh.MeshData meshData = meshDataArray[0];
 
-        // 3. Configuration des attributs (Position seulement pour l'instant)
         var vertexAttributes = new NativeArray<VertexAttributeDescriptor>(1, Allocator.Temp);
         vertexAttributes[0] = new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3);
         meshData.SetVertexBufferParams(vertexCount, vertexAttributes);
@@ -25,42 +37,68 @@ public class Chunk : MonoBehaviour
 
         NativeArray<float3> verts = meshData.GetVertexData<float3>();
         NativeArray<int> tris = meshData.GetIndexData<int>();
-
-        // CORRECTION 1 : Le masque doit avoir la taille des sommets (vertexCount)
         NativeArray<float> maskMap = new NativeArray<float>(vertexCount, Allocator.TempJob);
-        // CORRECTION 2 : heightMap a été retiré car inutilisé (évite le Memory Leak)
+        NativeArray<float> heightMap = new NativeArray<float>(vertexCount, Allocator.TempJob);
+
+        float islandRoll = rd.NextFloat(0, 1);
+        int islandSize = islandRoll >= manager.Settings.islandProbability ? rd.NextInt(60, 150) : 0;
 
         var maskJob = new FallOfJob
         {
             result = maskMap,
-            p = 2,
-            width = vertexDimension, // On utilise la dimension des sommets
-            centerX = centerX,
-            centerY = centerY,
+            p = rd.NextInt(1, 6),
+            size = vertexDimension,
+            centerX = size / 2 + rd.NextInt((-vertexDimension / 2) + islandSize, (vertexDimension / 2) - islandSize),
+            centerY = size / 2 + rd.NextInt((-vertexDimension / 2) + islandSize, (vertexDimension / 2) - islandSize),
             radius = islandSize,
-            warpScale = 0.05f,
-            warpStrength = 1
+            power = rd.NextFloat(0.5f, 2f)
+        };
+
+        var heightJob = new FractalSimplexJob
+        {
+            result = heightMap,
+            width = vertexDimension,
+            scale = manager.Settings.scale,
+            xOffset = coordinates.x * size,
+            yOffset = coordinates.y * size,
+            octaves = manager.Settings.octaves,
+            persistence = manager.Settings.persistence,
+            lacunarity = manager.Settings.lacunarity,
+            power = manager.Settings.power,
+        };
+
+        var mergeJob = new ApplyMaskJob
+        {
+            result = heightMap,
+            mask = maskMap
         };
 
         var meshJob = new MeshMakerJob
         {
-            heightMap = maskMap, // Le masque sert de HeightMap ici
+            heightMap = heightMap,
             vertices = verts,
             triangles = tris,
-            width = vertexDimension, // On passe la dimension des sommets
-            heightMultiplier = heightMultiplier
+            width = vertexDimension,
+            heightMultiplier = manager.Settings.heightMultiplier
         };
 
-        // 4. Exécution des Jobs
-        JobHandle noiseHandle = maskJob.Schedule(maskMap.Length, 64);
-        JobHandle meshHandle = meshJob.Schedule(vertexCount, 64, noiseHandle);
+        
+
+        JobHandle maskHandle = maskJob.Schedule(maskMap.Length, 64);
+        JobHandle heightHandle = heightJob.Schedule(heightMap.Length, 64);
+
+        JobHandle applyJob = mergeJob.Schedule(heightMap.Length, 64, JobHandle.CombineDependencies(maskHandle, heightHandle));
+
+        JobHandle meshHandle = meshJob.Schedule(vertexCount, 64, applyJob);
+        
         meshHandle.Complete();
 
-        // 5. Nettoyage mémoire
+
         maskMap.Dispose();
+        heightMap.Dispose();
         vertexAttributes.Dispose();
 
-        // 6. Finalisation du Mesh
+
         meshData.subMeshCount = 1;
         meshData.SetSubMesh(0, new SubMeshDescriptor(0, faceCount * 6));
 
@@ -69,7 +107,7 @@ public class Chunk : MonoBehaviour
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
 
-        // CORRECTION 3 : Vérification des composants pour éviter de les empiler
+
         if (!TryGetComponent<MeshFilter>(out MeshFilter meshFilter))
             meshFilter = gameObject.AddComponent<MeshFilter>();
 
