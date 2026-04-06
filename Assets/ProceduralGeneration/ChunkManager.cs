@@ -101,4 +101,11 @@ public struct ProceduralSettings
     public float heightMultiplier;
     [Range(0.5f, 10)] public float power;
     [Range(0,1)] public float islandProbability;
+    [Header("erosion")]
+    public int numDroplets;
+    public float erosionRate;
+    public float depositionRate;
+    public float evaporationRate;
+    public float inertia;
+    public float capacityMultiplier;
 }

@@ -73,6 +73,14 @@ public class Chunk : MonoBehaviour
             mask = maskMap
         };
 
+        var erosionJob = new CellularHydraulicErosionJob
+        {
+            map = heightMap,
+            mapSize = vertexDimension,
+            numDroplets = manager.Settings.numDroplets,
+            random = rd,
+        };
+
         var meshJob = new MeshMakerJob
         {
             heightMap = heightMap,
@@ -88,8 +96,9 @@ public class Chunk : MonoBehaviour
         JobHandle heightHandle = heightJob.Schedule(heightMap.Length, 64);
 
         JobHandle applyJob = mergeJob.Schedule(heightMap.Length, 64, JobHandle.CombineDependencies(maskHandle, heightHandle));
+        JobHandle erosionHandle = erosionJob.Schedule(applyJob);
 
-        JobHandle meshHandle = meshJob.Schedule(vertexCount, 64, applyJob);
+        JobHandle meshHandle = meshJob.Schedule(vertexCount, 64, erosionHandle);
         
         meshHandle.Complete();
 

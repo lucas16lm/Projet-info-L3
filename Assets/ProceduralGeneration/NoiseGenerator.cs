@@ -1,3 +1,4 @@
+using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -150,6 +151,107 @@ public struct FallOfJob : IJobParallelFor
         noiseValue = math.pow(noiseValue, power);
 
         result[index] = math.saturate(noiseValue);
+    }
+}
+
+[BurstCompile]
+public struct CellularHydraulicErosionJob : IJob
+{
+    public NativeArray<float> map;
+    public int mapSize;
+    public int numDroplets;
+    public Unity.Mathematics.Random random;
+
+
+    public void Execute()
+    {
+        for (int i = 0; i < numDroplets; i++)
+        {
+            int currentIndex = random.NextInt(0, map.Length);
+            float water = 1.0f;
+            float sediment = 0.0f;
+
+            while (water > 0)
+            {
+                int x = currentIndex % mapSize;
+                int y = currentIndex / mapSize;
+
+                int nextIndex = currentIndex;
+                float lowestHeight = map[currentIndex];
+
+                if (x > 0)
+                {
+                    int leftNeighbor = currentIndex - 1;
+                    if (map[leftNeighbor] < lowestHeight)
+                    {
+                        lowestHeight = map[leftNeighbor];
+                        nextIndex = leftNeighbor;
+                    }
+                }
+
+   
+                if (x < mapSize - 1)
+                {
+                    int rightNeighbor = currentIndex + 1;
+                    if (map[rightNeighbor] < lowestHeight)
+                    {
+                        lowestHeight = map[rightNeighbor];
+                        nextIndex = rightNeighbor;
+                    }
+                }
+
+
+                if (y < mapSize - 1)
+                {
+                    int upNeighbor = currentIndex + mapSize;
+                    if (map[upNeighbor] < lowestHeight)
+                    {
+                        lowestHeight = map[upNeighbor];
+                        nextIndex = upNeighbor;
+                    }
+                }
+
+
+                if (y > 0)
+                {
+                    int downNeighbor = currentIndex - mapSize;
+                    if (map[downNeighbor] < lowestHeight)
+                    {
+                        lowestHeight = map[downNeighbor];
+                        nextIndex = downNeighbor;
+                    }
+                }
+
+                if (nextIndex == currentIndex)
+                {
+                    map[currentIndex] += sediment;
+                    if (currentIndex + 1 >= 0 && currentIndex + 1 < map.Length) map[currentIndex + 1] += sediment / 2;
+                    if (currentIndex - 1 >= 0 && currentIndex - 1 < map.Length) map[currentIndex - 1] += sediment / 2;
+                    if (currentIndex + mapSize >= 0 && currentIndex + mapSize < map.Length) map[currentIndex + mapSize] += sediment / 2;
+                    if (currentIndex - mapSize >= 0 && currentIndex - mapSize < map.Length) map[currentIndex - mapSize] += sediment / 2;
+                    break;
+                }
+
+                float heightDiff = map[currentIndex] - map[nextIndex];
+                float erosionAmount = heightDiff * 0.04f;
+
+                map[currentIndex] -= erosionAmount;
+                if (currentIndex + 1 >= 0 && currentIndex + 1 < map.Length) map[currentIndex + 1] -= erosionAmount / 2;
+                if (currentIndex - 1 >= 0 && currentIndex - 1 < map.Length) map[currentIndex - 1] -= erosionAmount / 2;
+                if (currentIndex + mapSize >= 0 && currentIndex + mapSize < map.Length) map[currentIndex + mapSize] -= erosionAmount / 2;
+                if (currentIndex - mapSize >= 0 && currentIndex - mapSize < map.Length) map[currentIndex - mapSize] -= erosionAmount / 2;
+
+                sediment += erosionAmount;
+
+                currentIndex = nextIndex;
+                water -= 0.05f;
+            }
+            map[currentIndex] += sediment;
+            if(currentIndex + 1 >= 0 && currentIndex + 1 < map.Length) map[currentIndex + 1] += sediment / 2;
+            if (currentIndex - 1 >= 0 && currentIndex - 1 < map.Length) map[currentIndex - 1] += sediment / 2;
+            if (currentIndex + mapSize >= 0 && currentIndex + mapSize < map.Length) map[currentIndex + mapSize] += sediment / 2;
+            if (currentIndex - mapSize >= 0 && currentIndex - mapSize < map.Length) map[currentIndex - mapSize] += sediment / 2;
+        }    
     }
 }
 
