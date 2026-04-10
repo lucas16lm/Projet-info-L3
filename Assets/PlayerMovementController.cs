@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -16,7 +17,7 @@ public class PlayerMovementController : MonoBehaviour
     public float sprintMoveForce = 30f;
 
     public float jumpForce = 1;
-    float smoothness = 1;
+    public float rotationSpeed = 1;
     
     private Vector2 moveInput;
 
@@ -84,9 +85,13 @@ public class PlayerMovementController : MonoBehaviour
 
     private void ControlSpeed()
     {
-        if(rb.linearVelocity.magnitude > baseMaxSpeed)
+        Vector3 horizontalVelocity = rb.linearVelocity;
+        horizontalVelocity.y = 0;
+
+        if(horizontalVelocity.magnitude > baseMaxSpeed)
         {
-            rb.linearVelocity = rb.linearVelocity.normalized * baseMaxSpeed;
+            float verticalVelocity = rb.linearVelocity.y;
+            rb.linearVelocity = horizontalVelocity.normalized * baseMaxSpeed + verticalVelocity * Vector3.up;
         }
     }
 
@@ -95,7 +100,7 @@ public class PlayerMovementController : MonoBehaviour
         if (IsGrounded() && moveInput != Vector2.zero)
         {
             float targetAngle = Mathf.Atan2(rb.linearVelocity.x, rb.linearVelocity.z) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0f, targetAngle, 0f), smoothness * Time.fixedDeltaTime);
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0f, targetAngle, 0f), rotationSpeed * Time.fixedDeltaTime);
         }
     }
 
@@ -115,7 +120,7 @@ public class PlayerMovementController : MonoBehaviour
     {
         if (IsGrounded())
         {
-            //add force
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
         }
     }
 

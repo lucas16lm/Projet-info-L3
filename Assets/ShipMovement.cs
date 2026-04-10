@@ -130,11 +130,14 @@ public class ShipMovement : MonoBehaviour
     private void ControlSpeed()
     {
         float currentMaxSpeed = cruiseMode ? maxCruiseSpeed : maxSpeed;
-        if (rb.linearVelocity.magnitude > currentMaxSpeed)
+
+        Vector3 horizontalVelocity = rb.linearVelocity;
+        horizontalVelocity.y = 0;
+
+        if (horizontalVelocity.magnitude > currentMaxSpeed)
         {
-            float speedExcess = rb.linearVelocity.magnitude - currentMaxSpeed;
-            float resistanceFactor = 5f;
-            rb.AddForce(-rb.linearVelocity * speedExcess * resistanceFactor, ForceMode.Acceleration);
+            float verticalVelocity = rb.linearVelocity.y;
+            rb.linearVelocity = horizontalVelocity.normalized * currentMaxSpeed + verticalVelocity * Vector3.up;
         }
     }
 
