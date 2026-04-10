@@ -37,6 +37,9 @@ public struct MeshMakerJob : IJobParallelFor
     [WriteOnly]
     [NativeDisableContainerSafetyRestriction]
     public NativeArray<int> triangles;
+    [WriteOnly]
+    [NativeDisableContainerSafetyRestriction]
+    public NativeArray<float2> uvs;
 
     public int width;
     public float heightMultiplier;
@@ -48,6 +51,9 @@ public struct MeshMakerJob : IJobParallelFor
 
         float y = heightMap[index] * heightMultiplier;
         vertices[index] = new float3(x, y, z);
+
+        float u = math.saturate(heightMap[index]);
+        uvs[index] = new float2(u, 0f);
 
         if (x < width - 1 && z < width - 1)
         {
@@ -120,15 +126,29 @@ public struct FallOfJob : IJobParallelFor
     public int centerX;
     public int centerY;
     public float radius;
+    public float innerRadius;
     public float power;
+
+    public float noiseScale;
+    public float noiseStrength;
 
     public void Execute(int index)
     {
+        if (radius == 0)
+        {
+            result[index] = 0;
+            return;
+        }
+
         int x = index % size;
         int y = index / size;
 
-        float dx = math.abs(x - centerX);
-        float dy = math.abs(y - centerY);
+        float2 pos = new float2(x, y);
+        float offsetX = noise.snoise(pos * noiseScale) * noiseStrength;
+        float offsetY = noise.snoise(new float2(pos.x + 1000f, pos.y + 1000f) * noiseScale) * noiseStrength;
+
+        float dx = math.abs((x + offsetX) - centerX);
+        float dy = math.abs((y + offsetY) - centerY);
 
 
         float d = 0;
@@ -147,111 +167,49 @@ public struct FallOfJob : IJobParallelFor
             d = math.pow(a + b, 1.0f / p);
         }
 
-        float noiseValue = 1.0f - math.smoothstep(0, radius, d);
-        noiseValue = math.pow(noiseValue, power);
+        float falloffRange = math.max(0.0001f, radius - innerRadius);
+        float noiseValue = 1f - math.saturate((d - innerRadius) / falloffRange);
 
-        result[index] = math.saturate(noiseValue);
+        result[index] = math.pow(noiseValue, power);
     }
 }
 
 [BurstCompile]
-public struct CellularHydraulicErosionJob : IJob
+public struct CoastalErosionJob : IJobParallelFor
 {
     public NativeArray<float> map;
-    public int mapSize;
-    public int numDroplets;
-    public Unity.Mathematics.Random random;
 
+    public float seaLevel;
+    public float waveRange;
+    public float erosionForce; // Ex: 0.05f pour une érosion douce par itération
+    public float sedimentationRate; // Ex: 0.01f pour combler lentement les abysses
 
-    public void Execute()
+    public void Execute(int index)
     {
-        for (int i = 0; i < numDroplets; i++)
+        float height = map[index];
+        float distToSeaLevel = math.abs(height - seaLevel);
+
+        // 1. Action des vagues (Création de plages et hauts-fonds)
+        if (distToSeaLevel < waveRange)
         {
-            int currentIndex = random.NextInt(0, map.Length);
-            float water = 1.0f;
-            float sediment = 0.0f;
+            // La force est de 1.0 exactement au niveau de la mer, et tombe à 0 sur les bords.
+            float force = 1.0f - (distToSeaLevel / waveRange);
 
-            while (water > 0)
-            {
-                int x = currentIndex % mapSize;
-                int y = currentIndex / mapSize;
+            // On adoucit la courbe d'impact pour un résultat plus naturel
+            force = force * force;
 
-                int nextIndex = currentIndex;
-                float lowestHeight = map[currentIndex];
+            // On "tire" le terrain vers le niveau de la mer.
+            // Cela rabote les falaises et remblaie les zones juste sous l'eau, formant une plage.
+            map[index] = math.lerp(height, seaLevel, force * erosionForce);
+        }
+        // 2. Sédimentation des fonds marins (Loin de l'agitation des vagues)
+        else if (height < seaLevel - waveRange)
+        {
+            float depth = seaLevel - height;
 
-                if (x > 0)
-                {
-                    int leftNeighbor = currentIndex - 1;
-                    if (map[leftNeighbor] < lowestHeight)
-                    {
-                        lowestHeight = map[leftNeighbor];
-                        nextIndex = leftNeighbor;
-                    }
-                }
-
-   
-                if (x < mapSize - 1)
-                {
-                    int rightNeighbor = currentIndex + 1;
-                    if (map[rightNeighbor] < lowestHeight)
-                    {
-                        lowestHeight = map[rightNeighbor];
-                        nextIndex = rightNeighbor;
-                    }
-                }
-
-
-                if (y < mapSize - 1)
-                {
-                    int upNeighbor = currentIndex + mapSize;
-                    if (map[upNeighbor] < lowestHeight)
-                    {
-                        lowestHeight = map[upNeighbor];
-                        nextIndex = upNeighbor;
-                    }
-                }
-
-
-                if (y > 0)
-                {
-                    int downNeighbor = currentIndex - mapSize;
-                    if (map[downNeighbor] < lowestHeight)
-                    {
-                        lowestHeight = map[downNeighbor];
-                        nextIndex = downNeighbor;
-                    }
-                }
-
-                if (nextIndex == currentIndex)
-                {
-                    map[currentIndex] += sediment;
-                    if (currentIndex + 1 >= 0 && currentIndex + 1 < map.Length) map[currentIndex + 1] += sediment / 2;
-                    if (currentIndex - 1 >= 0 && currentIndex - 1 < map.Length) map[currentIndex - 1] += sediment / 2;
-                    if (currentIndex + mapSize >= 0 && currentIndex + mapSize < map.Length) map[currentIndex + mapSize] += sediment / 2;
-                    if (currentIndex - mapSize >= 0 && currentIndex - mapSize < map.Length) map[currentIndex - mapSize] += sediment / 2;
-                    break;
-                }
-
-                float heightDiff = map[currentIndex] - map[nextIndex];
-                float erosionAmount = heightDiff * 0.04f;
-
-                map[currentIndex] -= erosionAmount;
-                if (currentIndex + 1 >= 0 && currentIndex + 1 < map.Length) map[currentIndex + 1] -= erosionAmount / 2;
-                if (currentIndex - 1 >= 0 && currentIndex - 1 < map.Length) map[currentIndex - 1] -= erosionAmount / 2;
-                if (currentIndex + mapSize >= 0 && currentIndex + mapSize < map.Length) map[currentIndex + mapSize] -= erosionAmount / 2;
-                if (currentIndex - mapSize >= 0 && currentIndex - mapSize < map.Length) map[currentIndex - mapSize] -= erosionAmount / 2;
-
-                sediment += erosionAmount;
-
-                currentIndex = nextIndex;
-                water -= 0.05f;
-            }
-            map[currentIndex] += sediment;
-            if(currentIndex + 1 >= 0 && currentIndex + 1 < map.Length) map[currentIndex + 1] += sediment / 2;
-            if (currentIndex - 1 >= 0 && currentIndex - 1 < map.Length) map[currentIndex - 1] += sediment / 2;
-            if (currentIndex + mapSize >= 0 && currentIndex + mapSize < map.Length) map[currentIndex + mapSize] += sediment / 2;
-            if (currentIndex - mapSize >= 0 && currentIndex - mapSize < map.Length) map[currentIndex - mapSize] += sediment / 2;
-        }    
+            // Les sédiments s'accumulent doucement en fonction de la profondeur
+            map[index] = height + (depth * sedimentationRate);
+        }
     }
 }
 
@@ -263,6 +221,7 @@ public struct ApplyMaskJob : IJobParallelFor
 
     public void Execute(int index)
     {
+        //result[index] = math.saturate(result[index] * mask[index]);
         result[index] = math.saturate(result[index] - (1 - mask[index]));
     }
 }

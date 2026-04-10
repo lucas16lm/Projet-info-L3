@@ -12,8 +12,8 @@ public class ChunkManager : MonoBehaviour
     [SerializeField] private float scale = 10f;
 
     [SerializeField] int heightMultiplier = 20;
-    [SerializeField] float power = 1;
     [SerializeField] Material mat;
+    private Texture tex;
 
     private Dictionary<Vector2Int, Chunk> chunkDict;
     private Vector2Int lastChunkCoord;
@@ -22,10 +22,12 @@ public class ChunkManager : MonoBehaviour
     [SerializeField] private int centerX;
     [SerializeField] private int centerY;
     [SerializeField] private int p = 1;
+    public Gradient colorGradient;
 
     private void Start()
     {
         chunkDict = new Dictionary<Vector2Int, Chunk>();
+        tex = GenerateGradientTexture();
         UpdateChunks();
     }
 
@@ -85,27 +87,55 @@ public class ChunkManager : MonoBehaviour
                     float worldZOffset = visibleChunkCoord.y * chunkSize;
                     chunk.GenerateMesh();
                     chunk.GetComponent<MeshRenderer>().material = mat;
+                    chunk.GetComponent<MeshRenderer>().material.mainTexture = tex;
+                    chunkGO.AddComponent<MeshCollider>();
                 }
             }
         }
+    }
+
+    Texture2D GenerateGradientTexture()
+    {
+        int width = 500;
+        Texture2D texture = new Texture2D(width, 1, TextureFormat.RGBA32, false);
+        texture.wrapMode = TextureWrapMode.Clamp;
+        Color[] colors = new Color[width];
+
+        for (int i = 0; i < width; i++)
+        {
+            float t = (float)i / (width - 1);
+            colors[i] = colorGradient.Evaluate(t);
+        }
+
+        texture.SetPixels(colors);
+        texture.Apply();
+
+        return texture;
     }
 }
 
 [System.Serializable]
 public struct ProceduralSettings
 {
+    [Range(0, 1)] public float islandProbability;
+    public float heightMultiplier;
+
+    [Header("Simplex settings")]
     public float scale;
     public int octaves;
     public float persistence;
     public float lacunarity;
-    public float heightMultiplier;
-    [Range(0.5f, 10)] public float power;
-    [Range(0,1)] public float islandProbability;
-    [Header("erosion")]
-    public int numDroplets;
-    public float erosionRate;
-    public float depositionRate;
-    public float evaporationRate;
-    public float inertia;
-    public float capacityMultiplier;
+    [Range(0.01f, 10)] public float power;
+    
+
+    [Header("Coastal erosion settings")]
+    [Range(0, 1)] public float seaLevel;
+    public float waveRange;
+    public float erosionForce;
+    public float sedimentationRate;
+
+    [Header("Falloff settings")]
+    [Range(0.01f, 10)] public float fallOfPower;
+    public float noiseScale;
+    public float noiseStrength;
 }

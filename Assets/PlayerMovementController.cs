@@ -1,30 +1,26 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerMovementController : MonoBehaviour
 {
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction sprintAction;
 
+    private Rigidbody rb;
+    public float baseMaxSpeed = 2.5f;
+    public float sprintMaxSpeed = 6f;
 
-    public CharacterController characterController;
+    public float baseMoveForce = 20f;
+    public float sprintMoveForce = 30f;
 
-    public float baseSpeed = 2.5f;
-    public float sprintSpeed = 6f;
-
-    public float gravity = -9.81f;
     public float jumpForce = 1;
+    float smoothness = 1;
     
     private Vector2 moveInput;
 
-    private Vector3 velocity;
     private bool isSprinting = false;
-    public float smoothness;
-
-    private bool isOnShip = false;
-    private Vector3 lastShipPosition;
-    private Quaternion lastShipRotation;
 
     [SerializeField] private Transform raycastSource;
     [SerializeField] private float distanceToGround;
@@ -35,6 +31,7 @@ public class PlayerMovementController : MonoBehaviour
         moveAction = InputSystem.actions.FindAction("Move");
         jumpAction = InputSystem.actions.FindAction("Jump");
         sprintAction = InputSystem.actions.FindAction("Sprint");
+        rb = GetComponent<Rigidbody>();
     }
 
     private void OnEnable()
@@ -44,7 +41,6 @@ public class PlayerMovementController : MonoBehaviour
         jumpAction.performed += OnJump;
         sprintAction.performed += StartSprint;
         sprintAction.canceled += CancelSprint;
-        characterController.enabled = true;
     }
 
     private void OnDisable()
@@ -54,135 +50,72 @@ public class PlayerMovementController : MonoBehaviour
         jumpAction.performed -= OnJump;
         sprintAction.performed -= StartSprint;
         sprintAction.canceled -= CancelSprint;
-        characterController.enabled = false;
-
-        isOnShip = false;
     }
 
-    private void LateUpdate()
+    private void FixedUpdate()
     {
-        CalculateGravity();
         CalculateHorizontalMovement();
+        ControlSpeed();
         LookAtMovement();
-
-        characterController.Move(velocity * Time.deltaTime + ComputeDeltaShip());
-    }
-
-    private void CalculateGravity()
-    {
-        if (characterController.isGrounded && velocity.y <= 0)
-        {
-          
-            if (isOnShip)
-            {
-                velocity.y = -4f;
-            }
-            else
-            {
-                velocity.y = -2f;
-            }
-        }
-        else
-        {
-            velocity.y += gravity * Time.deltaTime;
-        }
     }
 
     private void CalculateHorizontalMovement()
     {
-        if (characterController.isGrounded)
+        if (IsGrounded() && moveInput != Vector2.zero)
         {
-            Vector3 camRight = Camera.main.transform.right;
-            camRight.y = 0;
-            camRight.Normalize();
+            if(Physics.Raycast(raycastSource.position, Vector3.down, out RaycastHit hit, distanceToGround))
+            {
+                Vector3 camRight = Camera.main.transform.right;
+                camRight.y = 0;
+                camRight = Vector3.ProjectOnPlane(camRight, hit.normal);
+                camRight.Normalize();
 
-            Vector3 camForward = Camera.main.transform.forward;
-            camForward.y = 0;
-            camForward.Normalize();
 
-            float speed = isSprinting ? sprintSpeed : baseSpeed;
-            Vector3 targetDirection = (camRight * moveInput.x + camForward * moveInput.y) * speed;
-            
-            velocity.x = Mathf.Lerp(velocity.x, targetDirection.x, smoothness * Time.deltaTime);
-            velocity.z = Mathf.Lerp(velocity.z, targetDirection.z, smoothness * Time.deltaTime);
+                Vector3 camForward = Camera.main.transform.forward;
+                camForward.y = 0;
+                camForward.Normalize();
+                camForward = Vector3.ProjectOnPlane(camForward, hit.normal);
+                camForward.Normalize();
+
+                rb.AddForce((camForward * moveInput.y + camRight * moveInput.x) * baseMoveForce, ForceMode.Acceleration);
+            }
         }
-        else
+    }
+
+    private void ControlSpeed()
+    {
+        if(rb.linearVelocity.magnitude > baseMaxSpeed)
         {
-            velocity.x = Mathf.Lerp(velocity.x, 0, Time.deltaTime);
-            velocity.z = Mathf.Lerp(velocity.z, 0, Time.deltaTime);
+            rb.linearVelocity = rb.linearVelocity.normalized * baseMaxSpeed;
         }
     }
 
     private void LookAtMovement()
     {
-        if (characterController.isGrounded && moveInput != Vector2.zero)
+        if (IsGrounded() && moveInput != Vector2.zero)
         {
-            float targetAngle = Mathf.Atan2(velocity.x, velocity.z) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0f, targetAngle, 0f), smoothness * Time.deltaTime);
+            float targetAngle = Mathf.Atan2(rb.linearVelocity.x, rb.linearVelocity.z) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0f, targetAngle, 0f), smoothness * Time.fixedDeltaTime);
         }
     }
 
-    private Vector3 ComputeDeltaShip()
+
+    private bool IsGrounded()
     {
-        if (Physics.Raycast(transform.position + characterController.center, Vector3.down, out RaycastHit hit, characterController.center.y + 0.5f))
+        if(Physics.Raycast(raycastSource.position, Vector3.down, out RaycastHit hit, distanceToGround))
         {
-            if (hit.transform.CompareTag("Ship"))
-            {
-                if (!isOnShip)
-                {
-                    isOnShip = true;
-                    lastShipPosition = hit.transform.position;
-                    lastShipRotation = hit.transform.rotation;
-                }
-                else
-                {
-                    Quaternion deltaRotation = hit.transform.rotation * Quaternion.Inverse(lastShipRotation);
-                    Vector3 playerOffset = transform.position - lastShipPosition;
-                    Vector3 targetPosition = hit.transform.position + (deltaRotation * playerOffset);
-
-                    Vector3 deltaMove = targetPosition - transform.position;
-
-                    transform.Rotate(0, deltaRotation.eulerAngles.y, 0, Space.World);
-
-                    lastShipPosition = hit.transform.position;
-                    lastShipRotation = hit.transform.rotation;
-
-                    return deltaMove;
-                }
-            }
-            else
-            {
-                isOnShip = false;
-            }
-            
+            return true;
         }
-        else
-        {
-            isOnShip = false;
-        }
-        return Vector3.zero;
+        return false;
     }
 
-    public bool IsGrounded()
-    {
-        return characterController.isGrounded;
-    }
-
-    public bool IsMoving()
-    {
-        return characterController.isGrounded && moveInput != Vector2.zero;
-    }
-
-    public float GetHorizontalMoveSpeed()
-    {
-        return Mathf.Sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
-    }
+    
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        if (characterController.isGrounded)
+        if (IsGrounded())
         {
-            velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
+            //add force
         }
     }
 

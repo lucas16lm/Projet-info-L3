@@ -1,10 +1,12 @@
 using Cinemachine;
+using StylizedWater3;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Ship : MonoBehaviour
 {
+    
     [SerializeField] private List<GameObject> sailsUp;
     [SerializeField] private List<GameObject> sailsDown;
 

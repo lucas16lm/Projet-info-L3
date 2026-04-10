@@ -16,9 +16,9 @@ public class CharacterAnimationManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        animator.SetBool("IsGrounded", controller.IsGrounded());
-        animator.SetBool("MovementInputHeld", controller.IsMoving());
-        animator.SetFloat("MoveSpeed", controller.GetHorizontalMoveSpeed());
+        //animator.SetBool("IsGrounded", controller.IsGrounded());
+        //animator.SetBool("MovementInputHeld", controller.IsMoving());
+        //animator.SetFloat("MoveSpeed", controller.GetHorizontalMoveSpeed());
     }
 
 

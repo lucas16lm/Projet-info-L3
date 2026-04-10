@@ -30,13 +30,18 @@ public class Chunk : MonoBehaviour
         Mesh.MeshDataArray meshDataArray = Mesh.AllocateWritableMeshData(1);
         Mesh.MeshData meshData = meshDataArray[0];
 
-        var vertexAttributes = new NativeArray<VertexAttributeDescriptor>(1, Allocator.Temp);
-        vertexAttributes[0] = new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3);
+        var vertexAttributes = new NativeArray<VertexAttributeDescriptor>(2, Allocator.Temp);
+        vertexAttributes[0] = new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3, stream: 0);
+        vertexAttributes[1] = new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2, stream: 1);
+
         meshData.SetVertexBufferParams(vertexCount, vertexAttributes);
         meshData.SetIndexBufferParams(faceCount * 6, IndexFormat.UInt32);
 
-        NativeArray<float3> verts = meshData.GetVertexData<float3>();
+        NativeArray<float3> verts = meshData.GetVertexData<float3>(0);
+        NativeArray<float2> uvs = meshData.GetVertexData<float2>(1);
         NativeArray<int> tris = meshData.GetIndexData<int>();
+
+
         NativeArray<float> maskMap = new NativeArray<float>(vertexCount, Allocator.TempJob);
         NativeArray<float> heightMap = new NativeArray<float>(vertexCount, Allocator.TempJob);
 
@@ -51,7 +56,10 @@ public class Chunk : MonoBehaviour
             centerX = size / 2 + rd.NextInt((-vertexDimension / 2) + islandSize, (vertexDimension / 2) - islandSize),
             centerY = size / 2 + rd.NextInt((-vertexDimension / 2) + islandSize, (vertexDimension / 2) - islandSize),
             radius = islandSize,
-            power = rd.NextFloat(0.5f, 2f)
+            innerRadius = islandSize / 4,
+            power = manager.Settings.fallOfPower,
+            noiseScale = 1f / manager.Settings.noiseScale,
+            noiseStrength = manager.Settings.noiseStrength
         };
 
         var heightJob = new FractalSimplexJob
@@ -73,18 +81,22 @@ public class Chunk : MonoBehaviour
             mask = maskMap
         };
 
-        var erosionJob = new CellularHydraulicErosionJob
+        var erosionJob = new CoastalErosionJob
         {
             map = heightMap,
-            mapSize = vertexDimension,
-            numDroplets = manager.Settings.numDroplets,
-            random = rd,
-        };
+            seaLevel = manager.Settings.seaLevel,
+            waveRange = manager.Settings.waveRange,
+            erosionForce = manager.Settings.erosionForce,
+            sedimentationRate = manager.Settings.sedimentationRate
+    };
+
+        
 
         var meshJob = new MeshMakerJob
         {
             heightMap = heightMap,
             vertices = verts,
+            uvs = uvs,
             triangles = tris,
             width = vertexDimension,
             heightMultiplier = manager.Settings.heightMultiplier
@@ -96,7 +108,7 @@ public class Chunk : MonoBehaviour
         JobHandle heightHandle = heightJob.Schedule(heightMap.Length, 64);
 
         JobHandle applyJob = mergeJob.Schedule(heightMap.Length, 64, JobHandle.CombineDependencies(maskHandle, heightHandle));
-        JobHandle erosionHandle = erosionJob.Schedule(applyJob);
+        JobHandle erosionHandle = erosionJob.Schedule(heightMap.Length, 64, applyJob);
 
         JobHandle meshHandle = meshJob.Schedule(vertexCount, 64, erosionHandle);
         
