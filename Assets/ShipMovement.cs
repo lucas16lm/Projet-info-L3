@@ -11,8 +11,6 @@ public class ShipMovement : MonoBehaviour
     [SerializeField] private HeightQuerySystem.Interface waterInterface = new HeightQuerySystem.Interface();
     [SerializeField] private List<Transform> buoys;
     [SerializeField] private float buoyancyForce = 15f;
-    [SerializeField] private float currentWaterDrag = 2f;
-    [SerializeField] private float currentWaterAngularDrag = 1.5f;
 
     private HeightQuerySystem.Sampler heightSampler;
 
@@ -72,7 +70,7 @@ public class ShipMovement : MonoBehaviour
     {
         if (buoys == null || buoys.Count == 0) return;
  
-        waterInterface.GetWaterObject(this.transform.position);
+        waterInterface.GetWaterObject(transform.position);
         if (waterInterface.HasMissingReferences()) return;
 
 
@@ -92,7 +90,7 @@ public class ShipMovement : MonoBehaviour
             {
                 float clampedDepth = Mathf.Clamp(diff, 0f, 1f);
                 Vector3 force = Vector3.up * buoyancyForce * clampedDepth;
-                rb.AddForceAtPosition(force, buoys[i].position, ForceMode.Acceleration);
+                rb.AddForceAtPosition(force, buoys[i].position, ForceMode.Force);
             }
         }
     }
