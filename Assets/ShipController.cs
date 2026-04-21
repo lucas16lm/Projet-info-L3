@@ -63,7 +63,7 @@ public class ShipController : MonoBehaviour
     {
 
         pilot.parent = null;
-        pilot.GetComponent<PlayerMovementController>().enabled = true;
+        //pilot.GetComponent<PlayerMovementController>().enabled = true;
         
         
         enabled = false;

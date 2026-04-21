@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CharacterAnimationManager : MonoBehaviour
 {
-    private PlayerMovementController controller;
+    //private PlayerMovementController controller;
     private Animator animator;
 
     private float runSpeed = 2.5f;
@@ -10,7 +10,7 @@ public class CharacterAnimationManager : MonoBehaviour
 
     private void Awake()
     {
-        controller = GetComponent<PlayerMovementController>();
+        //controller = GetComponent<PlayerMovementController>();
         animator = GetComponent<Animator>();
     }
 

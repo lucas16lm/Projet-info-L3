@@ -1,0 +1,171 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4745808373810779147
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 10
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: PirateShip_04
+  m_Shader: {fileID: -6465566751694194690, guid: 9f935d07993fa7d449f8c81700f75f9c, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 49caadc492cf1cc47a21f752e89d66e5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ColorMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMask:
+        m_Texture: {fileID: 2800000, guid: ea9ee48bba0fae64d8cf1b374495bb27, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 1b18526cf5df3a641b7ae8b466c56094, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: 49caadc492cf1cc47a21f752e89d66e5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMask:
+        m_Texture: {fileID: 2800000, guid: 620eb1f636747f3419167a92ed7eb918, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _PatternMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _PrimaryMask:
+        m_Texture: {fileID: 2800000, guid: 06f3f15b1449e234595f09e73cfa682e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SecondaryMask:
+        m_Texture: {fileID: 2800000, guid: 217d7defb259b844f997d9e61fed1098, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _EmissionIntensity: 1
+    - _GlossMapScale: 0.06
+    - _Glossiness: 0.06
+    - _GlossyReflections: 1
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _PrimaryTintStrength: 0.754
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _SecondaryTintStrength: 0.6
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _Tolerance: 0.08
+    - _UVSec: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _DefaultDetail: {r: 0.70980394, g: 0.27058825, b: 0.27058825, a: 1}
+    - _DefaultIron: {r: 0, g: 0, b: 0, a: 1}
+    - _DefaultLamp: {r: 1, g: 1, b: 1, a: 1}
+    - _DefaultPrimary: {r: 0.9960785, g: 0.9960785, b: 0.9960785, a: 1}
+    - _DefaultRope: {r: 0.83921576, g: 0.67058825, b: 0.36078432, a: 1}
+    - _DefaultSail: {r: 0.8980393, g: 0.85098046, b: 0.79215693, a: 1}
+    - _DefaultSecondary: {r: 0.9960785, g: 0.9960785, b: 0.9960785, a: 1}
+    - _DefaultWoodA: {r: 0.6431373, g: 0.4784314, b: 0.3372549, a: 1}
+    - _DefaultWoodB: {r: 0.47058827, g: 0.3529412, b: 0.24313727, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _HairColor: {r: 0.09999997, g: 0.09999997, b: 0.09999997, a: 1}
+    - _ShirtPatternColor: {r: 1, g: 1, b: 1, a: 1}
+    - _SkinColor: {r: 1, g: 0.8, b: 0.6, a: 1}
+    - _SwapDetail: {r: 0.30588236, g: 0.2020044, b: 0.04705882, a: 1}
+    - _SwapHairColor: {r: 0.39999998, g: 0.19999996, b: 0.09999997, a: 1}
+    - _SwapIron: {r: 0.2830189, g: 0.2830189, b: 0.2830189, a: 1}
+    - _SwapLamp: {r: 1, g: 1, b: 0.19999996, a: 1}
+    - _SwapPrimary: {r: 0.6431373, g: 0.4784314, b: 0.3372549, a: 1}
+    - _SwapPrimaryColor: {r: 1, g: 0, b: 0, a: 1}
+    - _SwapQuaternaryColor: {r: 1, g: 1, b: 0, a: 1}
+    - _SwapRope: {r: 0.5999999, g: 0.523789, b: 0.38377354, a: 1}
+    - _SwapSail: {r: 0.36591664, g: 0.4188679, b: 0.37318447, a: 1}
+    - _SwapSecondary: {r: 0.5396226, g: 0.41460764, b: 0.34515485, a: 1}
+    - _SwapSecondaryColor: {r: 0, g: 1, b: 0, a: 1}
+    - _SwapSkinColor: {r: 1, g: 0.9, b: 0.7, a: 1}
+    - _SwapTertiaryColor: {r: 0, g: 0, b: 1, a: 1}
+    - _SwapWoodA: {r: 0.6754716, g: 0.6754716, b: 0.6754716, a: 1}
+    - _SwapWoodB: {r: 0.6830188, g: 0.331465, b: 0, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
