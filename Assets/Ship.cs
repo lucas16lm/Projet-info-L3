@@ -34,12 +34,12 @@ public class Ship : MonoBehaviour
     {
         foreach (GameObject sail in sailsUp)
         {
-            sail.SetActive(true);
+            sail.SetActive(false);
         }
 
         foreach (GameObject sail in sailsDown)
         {
-            sail.SetActive(false);
+            sail.SetActive(true);
         }
     }
 
@@ -47,12 +47,12 @@ public class Ship : MonoBehaviour
     {
         foreach (GameObject sail in sailsUp)
         {
-            sail.SetActive(false);
+            sail.SetActive(true);
         }
 
         foreach (GameObject sail in sailsDown)
         {
-            sail.SetActive(true);
+            sail.SetActive(false);
         }
     }
 }

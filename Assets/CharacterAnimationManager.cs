@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CharacterAnimationManager : MonoBehaviour
 {
-    //private PlayerMovementController controller;
+    private KinematicController controller;
     private Animator animator;
 
     private float runSpeed = 2.5f;
@@ -10,15 +10,15 @@ public class CharacterAnimationManager : MonoBehaviour
 
     private void Awake()
     {
-        //controller = GetComponent<PlayerMovementController>();
+        controller = GetComponent<KinematicController>();
         animator = GetComponent<Animator>();
     }
 
     private void FixedUpdate()
     {
-        //animator.SetBool("IsGrounded", controller.IsGrounded());
-        //animator.SetBool("MovementInputHeld", controller.IsMoving());
-        //animator.SetFloat("MoveSpeed", controller.GetHorizontalMoveSpeed());
+        animator.SetBool("IsGrounded", controller.isGrounded);
+        animator.SetBool("MovementInputHeld", controller.currentHorizontalVelocity.magnitude > 0.1f);
+        animator.SetFloat("MoveSpeed", 4);
     }
 
 

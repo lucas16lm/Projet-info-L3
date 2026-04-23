@@ -17,8 +17,8 @@ MonoBehaviour:
     IsCalculationForPreview: 0
     ConvertTo: 0
     SaveSuffix: _ConvexHull_
-    vhacdResultMethod: 1
-    UseSelectedVertices: 1
+    vhacdResultMethod: 0
+    UseSelectedVertices: 0
     CurrentMeshFilter: 0
     SeparateChildMeshes: 0
     PerMeshAttachOverride: 0
@@ -30,15 +30,15 @@ MonoBehaviour:
     alpha: 0.05000000074505806
     beta: 0.05000000074505806
     minVolumePerCH: 0.00009999999747378752
-    resolution: 10000
-    maxNumVerticesPerConvexHull: 76
+    resolution: 128000
+    maxNumVerticesPerConvexHull: 20
     planeDownsampling: 4
     convexhullDownSampling: 4
-    maxConvexHulls: 36
+    maxConvexHulls: 10
     projectHullVertices: 1
     fillMode: 0
     forceUnder256Triangles: 1
-  VHACDResFloat: 13.287712
+  VHACDResFloat: 16.965784
   AllowBackgroundSelection: 1
   AllowSavingConvexHullsInPackages: 0
   AutoSelectOnPrefabOpen: 0
@@ -59,7 +59,7 @@ MonoBehaviour:
   AutoSkinnedDepenetrateOrder: 3
   BoxSelectPlusKey: 97
   BoxSelectMinusKey: 115
-  CapsuleColliderMethod: 1
+  CapsuleColliderMethod: 0
   CombinedVHACDColliders: 1
   CommonScalingMultiplier: 1
   ConvexMeshReadWriteEnabled: 1
@@ -68,7 +68,7 @@ MonoBehaviour:
   DisplayAllScaleMult: 1
   OverlapScaleMult: 1
   SelectedScaleMult: 1
-  ColliderHolder: 0
+  ColliderHolder: 1
   CopyParentObjectLayer: 1
   CreateFromPreviewKey: 96
   CurrentWindowTab: 0
@@ -87,7 +87,7 @@ MonoBehaviour:
   OverlapSelectedVertColour: {r: 1, g: 0, b: 0, a: 1}
   PointSelectKeyCode: 98
   PopupDialogOnFinish: 0
-  PreviewColliderType: 5
+  PreviewColliderType: 0
   PreviewDrawColor: {r: 0, g: 1, b: 1, a: 1}
   PreviewEnabled: 1
   RaycastDelayTime: 0.1
@@ -103,7 +103,7 @@ MonoBehaviour:
     EndRotation: 360
     pivot: {fileID: 0}
     attachTo: {fileID: 0}
-  SaveConvexHullAsAsset: 0
+  SaveConvexHullAsAsset: 1
   ConvexHullSaveMethod: 2
   SaveConvexHullPath: Assets/EasyColliderEditor/Convex Hulls/
   SaveConvexHullSubFolder: 

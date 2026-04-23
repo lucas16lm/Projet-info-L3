@@ -6,13 +6,18 @@ public class KinematicController : MonoBehaviour
 {
     [Header("Move settings")]
     public float moveSpeed = 5f;
+    public float accelerationSmooth = 0.1f;
 
-    [Header("Gravity settings")]
+    [Header("Gravity and slope settings")]
     public float gravity = -15f;
     public float groundCheckDistance = 0.1f;
+    public float maxSlopeAngle = 45f;
 
     [Header("Jump settings")]
     public float jumpForce = 8f;
+
+    [Header("Rotation settings")]
+    public float rotationSpeed = 15f;
 
     [Header("collide and slide settings")]
     public int maxBounces = 3;
@@ -29,7 +34,10 @@ public class KinematicController : MonoBehaviour
 
     
     private float currentVerticalVelocity;
-    private bool isGrounded;
+    public Vector3 currentHorizontalVelocity;
+    private Vector3 externalVelocity;
+    public bool isGrounded;
+    public bool isPiloting = false;
 
     private void Awake()
     {
@@ -42,21 +50,36 @@ public class KinematicController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        CheckGrounded();
         Vector3 currentPos = rb.position;
+        ResolveOverlaps(ref currentPos);
+        CheckGrounded();
 
         Vector3 camForward = camTransform.forward;
         camForward.y = 0;
+        camForward.Normalize();
         Vector3 camRight = camTransform.right;
         camRight.y = 0;
+        camRight.Normalize();
 
-        Vector3 horizontalVelocity = (camRight * moveInput.x + camForward * moveInput.y) * moveSpeed * Time.fixedDeltaTime;
-        if (!isGrounded) horizontalVelocity = Vector3.zero;
+        Vector3 targetHorizontalVelocity = (camRight * moveInput.x + camForward * moveInput.y) * moveSpeed;
+        if (!isGrounded || isPiloting) targetHorizontalVelocity = Vector3.zero;
 
-        if (horizontalVelocity.magnitude > 0.001f)
+        float smooth = isGrounded ? accelerationSmooth : accelerationSmooth/10;
+        currentHorizontalVelocity = Vector3.MoveTowards(currentHorizontalVelocity, targetHorizontalVelocity, smooth * Time.fixedDeltaTime);
+
+
+        if (currentHorizontalVelocity.magnitude > 0.001f)
         {
-            Vector3 horizontalMovement = CollideAndSlide(horizontalVelocity, currentPos, 0);
+            Vector3 horizontalMovement = CollideAndSlide(currentHorizontalVelocity * Time.fixedDeltaTime, currentPos, 0);
             currentPos += horizontalMovement;
+
+            Vector3 lookDirection = new Vector3(currentHorizontalVelocity.x, 0, currentHorizontalVelocity.z);
+            if (lookDirection.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
+                Quaternion newRotation = Quaternion.Slerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+                rb.MoveRotation(newRotation);
+            }
         }
 
         if (isGrounded && currentVerticalVelocity <= 0)
@@ -78,7 +101,10 @@ public class KinematicController : MonoBehaviour
 
         currentPos += verticalMovement;
 
-        //TODO : delta ship
+        if (externalVelocity.magnitude > 0)
+        {
+            currentPos += externalVelocity * Time.fixedDeltaTime;
+        }
 
         rb.MovePosition(currentPos);
 
@@ -102,8 +128,19 @@ public class KinematicController : MonoBehaviour
         if (Physics.CapsuleCast(point1, point2, radius, direction, out RaycastHit hit, distance + skinWidth, collisionMask))
         {
             float safeDistance = hit.distance - skinWidth;
+
             Vector3 safeMovement = direction * safeDistance;
             Vector3 leftoverVelocity = velocity - safeMovement;
+
+            float angle = Vector3.Angle(Vector3.up, hit.normal);
+            if (angle > maxSlopeAngle && leftoverVelocity.y >= 0)
+            {
+                leftoverVelocity.y = 0;
+            }
+            else if (angle <= maxSlopeAngle && leftoverVelocity.y < 0)
+            {
+                leftoverVelocity = Vector3.zero;
+            }
 
             Vector3 projectedVelocity = Vector3.ProjectOnPlane(leftoverVelocity, hit.normal);
 
@@ -116,9 +153,51 @@ public class KinematicController : MonoBehaviour
     private void CheckGrounded()
     {
         float radius = collider.radius * 0.9f;
-        Vector3 origin = rb.position + collider.center + Vector3.down * ((collider.height / 2f) - radius);
+        float castOffset = radius;
+        Vector3 origin = rb.position + collider.center + Vector3.down * ((collider.height / 2f) - radius - castOffset);
 
-        isGrounded = Physics.SphereCast(origin, radius, Vector3.down, out RaycastHit hit, groundCheckDistance, collisionMask);
+        if(Physics.SphereCast(origin, radius, Vector3.down, out RaycastHit hit, groundCheckDistance + castOffset, collisionMask))
+        {
+            isGrounded = true;
+
+            if (hit.rigidbody != null && !hit.rigidbody.isKinematic)
+            {
+                externalVelocity = hit.rigidbody.GetPointVelocity(hit.point);
+            }
+            else
+            {
+                externalVelocity = Vector3.zero;
+            }
+        }
+        else
+        {
+            isGrounded = false;
+            externalVelocity = Vector3.zero;
+        }
+    }
+
+    private void ResolveOverlaps(ref Vector3 currentPos)
+    {
+        float radius = collider.radius;
+        float heightOffset = (collider.height / 2f) - radius;
+        Vector3 point1 = currentPos + collider.center + Vector3.up * heightOffset;
+        Vector3 point2 = currentPos + collider.center - Vector3.up * heightOffset;
+
+        Collider[] overlaps = Physics.OverlapCapsule(point1, point2, radius, collisionMask);
+
+        foreach (Collider overlap in overlaps)
+        {
+            if (overlap == collider) continue; 
+
+            if (Physics.ComputePenetration(
+                    collider, currentPos, rb.rotation,
+                    overlap, overlap.transform.position, overlap.transform.rotation,
+                    out Vector3 pushDirection, out float pushDistance))
+            {
+
+                currentPos += pushDirection * (pushDistance + skinWidth);
+            }
+        }
     }
 
     private void OnEnable()

@@ -54,7 +54,7 @@ public class ShipController : MonoBehaviour
     public void EnterShip(Transform pilot)
     {
         this.pilot = pilot;
-        pilot.parent = transform;
+        pilot.GetComponent<KinematicController>().isPiloting = true;
         enabled = true;
         ship.SetCruiseView();
     }
@@ -62,10 +62,8 @@ public class ShipController : MonoBehaviour
     private void ExitShip(InputAction.CallbackContext context)
     {
 
-        pilot.parent = null;
-        //pilot.GetComponent<PlayerMovementController>().enabled = true;
-        
-        
+        pilot.GetComponent<KinematicController>().isPiloting = false;
+
         enabled = false;
         pilot = null;
         ship.UnsetCruiseView();
