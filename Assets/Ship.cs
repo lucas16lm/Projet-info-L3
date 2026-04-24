@@ -1,10 +1,12 @@
 using Cinemachine;
+using StylizedWater3;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Ship : MonoBehaviour
 {
+    
     [SerializeField] private List<GameObject> sailsUp;
     [SerializeField] private List<GameObject> sailsDown;
 
@@ -32,12 +34,12 @@ public class Ship : MonoBehaviour
     {
         foreach (GameObject sail in sailsUp)
         {
-            sail.SetActive(true);
+            sail.SetActive(false);
         }
 
         foreach (GameObject sail in sailsDown)
         {
-            sail.SetActive(false);
+            sail.SetActive(true);
         }
     }
 
@@ -45,12 +47,12 @@ public class Ship : MonoBehaviour
     {
         foreach (GameObject sail in sailsUp)
         {
-            sail.SetActive(false);
+            sail.SetActive(true);
         }
 
         foreach (GameObject sail in sailsDown)
         {
-            sail.SetActive(true);
+            sail.SetActive(false);
         }
     }
 }

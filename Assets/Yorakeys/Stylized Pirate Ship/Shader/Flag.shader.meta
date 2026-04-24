@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 1eed1620a253e514daff5b9c3b9c3734
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317202
+  packageName: Stylized Pirate Ship - By Yorakeys
+  packageVersion: 1.2.0
+  assetPath: Assets/Yorakeys/Stylized Pirate Ship/Shader/Flag.shader
+  uploadId: 771407

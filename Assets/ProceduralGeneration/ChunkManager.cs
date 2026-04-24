@@ -3,26 +3,31 @@ using UnityEngine;
 
 public class ChunkManager : MonoBehaviour
 {
+    [SerializeField] private ProceduralSettings _settings;
+    public ProceduralSettings Settings => _settings;
+
     [SerializeField] private int chunkSize = 16;
     [SerializeField] private int radius = 4;
 
-    [SerializeField] float scale = 10f;
+    [SerializeField] private float scale = 10f;
 
     [SerializeField] int heightMultiplier = 20;
-    [SerializeField] float power = 1;
     [SerializeField] Material mat;
+    private Texture tex;
 
     private Dictionary<Vector2Int, Chunk> chunkDict;
     private Vector2Int lastChunkCoord;
 
     [Header("Islands")]
-    [SerializeField] private float islandSize;
     [SerializeField] private int centerX;
     [SerializeField] private int centerY;
+    [SerializeField] private int p = 1;
+    public Gradient colorGradient;
 
     private void Start()
     {
         chunkDict = new Dictionary<Vector2Int, Chunk>();
+        tex = GenerateGradientTexture();
         UpdateChunks();
     }
 
@@ -74,14 +79,63 @@ public class ChunkManager : MonoBehaviour
                     chunkGO.transform.parent = transform;
                     chunkGO.transform.position = new Vector3(visibleChunkCoord.x * chunkSize, 0, visibleChunkCoord.y * chunkSize);
                     Chunk chunk = chunkGO.AddComponent<Chunk>();
+                    chunk.Init(visibleChunkCoord, chunkSize, this);
+
                     chunkDict.Add(visibleChunkCoord, chunk);
 
                     float worldXOffset = visibleChunkCoord.x * chunkSize;
                     float worldZOffset = visibleChunkCoord.y * chunkSize;
-                    chunk.GenerateMesh(chunkSize, scale, worldXOffset, worldZOffset, power, heightMultiplier, islandSize, centerX, centerY);
+                    chunk.GenerateMesh();
                     chunk.GetComponent<MeshRenderer>().material = mat;
+                    chunk.GetComponent<MeshRenderer>().material.mainTexture = tex;
+                    chunkGO.AddComponent<MeshCollider>();
                 }
             }
         }
     }
+
+    Texture2D GenerateGradientTexture()
+    {
+        int width = 500;
+        Texture2D texture = new Texture2D(width, 1, TextureFormat.RGBA32, false);
+        texture.wrapMode = TextureWrapMode.Clamp;
+        Color[] colors = new Color[width];
+
+        for (int i = 0; i < width; i++)
+        {
+            float t = (float)i / (width - 1);
+            colors[i] = colorGradient.Evaluate(t);
+        }
+
+        texture.SetPixels(colors);
+        texture.Apply();
+
+        return texture;
+    }
+}
+
+[System.Serializable]
+public struct ProceduralSettings
+{
+    [Range(0, 1)] public float islandProbability;
+    public float heightMultiplier;
+
+    [Header("Simplex settings")]
+    public float scale;
+    public int octaves;
+    public float persistence;
+    public float lacunarity;
+    [Range(0.01f, 10)] public float power;
+    
+
+    [Header("Coastal erosion settings")]
+    [Range(0, 1)] public float seaLevel;
+    public float waveRange;
+    public float erosionForce;
+    public float sedimentationRate;
+
+    [Header("Falloff settings")]
+    [Range(0.01f, 10)] public float fallOfPower;
+    public float noiseScale;
+    public float noiseStrength;
 }
