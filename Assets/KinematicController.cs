@@ -35,6 +35,8 @@ public class KinematicController : MonoBehaviour
     
     private float currentVerticalVelocity;
     public Vector3 currentHorizontalVelocity;
+    
+    
     private Vector3 externalVelocity;
     public bool isGrounded;
     public bool isPiloting = false;
@@ -132,17 +134,25 @@ public class KinematicController : MonoBehaviour
             Vector3 safeMovement = direction * safeDistance;
             Vector3 leftoverVelocity = velocity - safeMovement;
 
+            Vector3 projectedVelocity = Vector3.ProjectOnPlane(leftoverVelocity, hit.normal);
+
             float angle = Vector3.Angle(Vector3.up, hit.normal);
-            if (angle > maxSlopeAngle && leftoverVelocity.y >= 0)
+            if (angle > maxSlopeAngle)
             {
-                leftoverVelocity.y = 0;
+                if (velocity.y <= 0 && projectedVelocity.y > 0)
+                {
+                    projectedVelocity.y = 0;
+                }
             }
-            else if (angle <= maxSlopeAngle && leftoverVelocity.y < 0)
+            else
             {
-                leftoverVelocity = Vector3.zero;
+                if (velocity.y < 0 && velocity.x == 0 && velocity.z == 0)
+                {
+                    projectedVelocity = Vector3.zero;
+                }
             }
 
-            Vector3 projectedVelocity = Vector3.ProjectOnPlane(leftoverVelocity, hit.normal);
+
 
             return safeMovement + CollideAndSlide(projectedVelocity, currentPosition + safeMovement, depth + 1);
         }
@@ -152,11 +162,12 @@ public class KinematicController : MonoBehaviour
 
     private void CheckGrounded()
     {
+      
         float radius = collider.radius * 0.9f;
         float castOffset = radius;
         Vector3 origin = rb.position + collider.center + Vector3.down * ((collider.height / 2f) - radius - castOffset);
 
-        if(Physics.SphereCast(origin, radius, Vector3.down, out RaycastHit hit, groundCheckDistance + castOffset, collisionMask))
+        if (Physics.SphereCast(origin, radius, Vector3.down, out RaycastHit hit, groundCheckDistance + castOffset, collisionMask))
         {
             isGrounded = true;
 
@@ -172,7 +183,7 @@ public class KinematicController : MonoBehaviour
         else
         {
             isGrounded = false;
-            externalVelocity = Vector3.zero;
+            externalVelocity = Vector3.MoveTowards(externalVelocity, Vector3.zero, Time.fixedDeltaTime);
         }
     }
 

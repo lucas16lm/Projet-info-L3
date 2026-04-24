@@ -100,7 +100,11 @@ public class ShipMovement : MonoBehaviour
         if (!cruiseMode)
         {
             float multiplier = moveInput.y >= 0 ? 1f : 0.25f;
-            rb.AddForce(transform.forward * moveForce * moveInput.y * multiplier, ForceMode.Force);
+            
+            Vector3 forward = transform.forward;
+            forward.y *= 0;
+
+            rb.AddForce(forward * moveForce * moveInput.y * multiplier, ForceMode.Force);
         }
         else
         {

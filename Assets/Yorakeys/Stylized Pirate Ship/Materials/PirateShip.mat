@@ -147,7 +147,7 @@ Material:
     - _SwapPrimaryColor: {r: 1, g: 0, b: 0, a: 1}
     - _SwapQuaternaryColor: {r: 1, g: 1, b: 0, a: 1}
     - _SwapRope: {r: 0.5999999, g: 0.523789, b: 0.38377354, a: 1}
-    - _SwapSail: {r: 0.6981132, g: 0.33588463, b: 0.33588463, a: 1}
+    - _SwapSail: {r: 0.6792453, g: 0.6544342, b: 0.6247775, a: 1}
     - _SwapSecondary: {r: 0.21216798, g: 0.29041296, b: 0.4867924, a: 1}
     - _SwapSecondaryColor: {r: 0, g: 1, b: 0, a: 1}
     - _SwapSkinColor: {r: 1, g: 0.9, b: 0.7, a: 1}
