@@ -12,7 +12,7 @@ public class ChunkManager : MonoBehaviour
     [SerializeField] private float scale = 10f;
 
     [SerializeField] int heightMultiplier = 20;
-    [SerializeField] Material mat;
+    [SerializeField] private Material mat;
     private Texture tex;
 
     private Dictionary<Vector2Int, Chunk> chunkDict;
@@ -87,7 +87,7 @@ public class ChunkManager : MonoBehaviour
                     float worldZOffset = visibleChunkCoord.y * chunkSize;
                     chunk.GenerateMesh();
                     chunk.GetComponent<MeshRenderer>().material = mat;
-                    chunk.GetComponent<MeshRenderer>().material.mainTexture = tex;
+                    //chunk.GetComponent<MeshRenderer>().material.mainTexture = tex;
                     chunkGO.AddComponent<MeshCollider>();
                 }
             }
@@ -117,25 +117,39 @@ public class ChunkManager : MonoBehaviour
 [System.Serializable]
 public struct ProceduralSettings
 {
-    [Range(0, 1)] public float islandProbability;
+    [Header("Islands shape")]
+    public float islandsScale;
+    public int islandsOctaves;
+    public float islandsPersistance;
+    public float islandsLacunarity;
+    public float islandsPower;
+    public float islandsProximityFactor;
+
+    [Header("Islands warp")]
+    public float islandsWarpScale;
+    public float islandsWarpStrength;
+
+    [Header("Mountain settings")]
+    public float mountainsScale;
+    public int mountainsOctaves;
+    public float mountainsPersistance;
+    public float mountainsLacunarity;
+    public float mountainsPower;
+
+    [Header("Flat settings")]
+    public float flatScale;
+    public int flatOctaves;
+    public float flatPersistance;
+    public float flatLacunarity;
+    public float flatPower;
+
+
+    [Header("Hydrolic erosion")]
+    public float ravineScale;
+    public float erosionStrength;
+    public float slopeThreshold;
+
+
+    [Header("Global")]
     public float heightMultiplier;
-
-    [Header("Simplex settings")]
-    public float scale;
-    public int octaves;
-    public float persistence;
-    public float lacunarity;
-    [Range(0.01f, 10)] public float power;
-    
-
-    [Header("Coastal erosion settings")]
-    [Range(0, 1)] public float seaLevel;
-    public float waveRange;
-    public float erosionForce;
-    public float sedimentationRate;
-
-    [Header("Falloff settings")]
-    [Range(0.01f, 10)] public float fallOfPower;
-    public float noiseScale;
-    public float noiseStrength;
 }

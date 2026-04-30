@@ -42,59 +42,54 @@ public class Chunk : MonoBehaviour
         NativeArray<int> tris = meshData.GetIndexData<int>();
 
 
-        NativeArray<float> maskMap = new NativeArray<float>(vertexCount, Allocator.TempJob);
         NativeArray<float> heightMap = new NativeArray<float>(vertexCount, Allocator.TempJob);
+        NativeArray<float> erodedHeightMap = new NativeArray<float>(vertexCount, Allocator.TempJob);
 
-        float islandRoll = rd.NextFloat(0, 1);
-        int islandSize = islandRoll >= manager.Settings.islandProbability ? rd.NextInt(60, 150) : 0;
 
-        var maskJob = new FallOfJob
-        {
-            result = maskMap,
-            p = rd.NextInt(1, 6),
-            size = vertexDimension,
-            centerX = size / 2 + rd.NextInt((-vertexDimension / 2) + islandSize, (vertexDimension / 2) - islandSize),
-            centerY = size / 2 + rd.NextInt((-vertexDimension / 2) + islandSize, (vertexDimension / 2) - islandSize),
-            radius = islandSize,
-            innerRadius = islandSize / 4,
-            power = manager.Settings.fallOfPower,
-            noiseScale = 1f / manager.Settings.noiseScale,
-            noiseStrength = manager.Settings.noiseStrength
-        };
-
-        var heightJob = new FractalSimplexJob
+        var heightJob = new HeightMapJob
         {
             result = heightMap,
             width = vertexDimension,
-            scale = manager.Settings.scale,
             xOffset = coordinates.x * size,
             yOffset = coordinates.y * size,
-            octaves = manager.Settings.octaves,
-            persistence = manager.Settings.persistence,
-            lacunarity = manager.Settings.lacunarity,
-            power = manager.Settings.power,
+
+            islandsScale = manager.Settings.islandsScale,
+            islandsOctaves = manager.Settings.islandsOctaves,
+            islandsPersistance = manager.Settings.islandsPersistance,
+            islandsLacunarity = manager.Settings.islandsLacunarity,
+            islandspower = manager.Settings.islandsPower,
+            islandsProximityFactor = manager.Settings.islandsProximityFactor,
+
+
+            warpScale = manager.Settings.islandsWarpScale,
+            warpStrength = manager.Settings.islandsWarpStrength,
+
+            mountainsScale = manager.Settings.mountainsScale,
+            mountainsOctaves = manager.Settings.mountainsOctaves,
+            mountainsPersistance = manager.Settings.mountainsPersistance,
+            mountainsLacunarity = manager.Settings.mountainsLacunarity,
+            mountainsPower = manager.Settings.mountainsPower,
+
+            flatScale= manager.Settings.flatScale,
+            flatOctaves = manager.Settings.flatOctaves,
+            flatPersistance = manager.Settings.flatPersistance,
+            flatLacunarity = manager.Settings.flatLacunarity,
+            flatPower = manager.Settings.flatPower,
         };
 
-        var mergeJob = new ApplyMaskJob
+        var erosionJob = new ErosionJob
         {
-            result = heightMap,
-            mask = maskMap
+            heightMap = heightMap,
+            result = erodedHeightMap,
+            width = vertexDimension,
+            xOffset = coordinates.x * size,
+            yOffset = coordinates.y * size,
         };
 
-        var erosionJob = new CoastalErosionJob
-        {
-            map = heightMap,
-            seaLevel = manager.Settings.seaLevel,
-            waveRange = manager.Settings.waveRange,
-            erosionForce = manager.Settings.erosionForce,
-            sedimentationRate = manager.Settings.sedimentationRate
-    };
-
-        
 
         var meshJob = new MeshMakerJob
         {
-            heightMap = heightMap,
+            heightMap = erodedHeightMap,
             vertices = verts,
             uvs = uvs,
             triangles = tris,
@@ -104,19 +99,16 @@ public class Chunk : MonoBehaviour
 
         
 
-        JobHandle maskHandle = maskJob.Schedule(maskMap.Length, 64);
         JobHandle heightHandle = heightJob.Schedule(heightMap.Length, 64);
-
-        JobHandle applyJob = mergeJob.Schedule(heightMap.Length, 64, JobHandle.CombineDependencies(maskHandle, heightHandle));
-        JobHandle erosionHandle = erosionJob.Schedule(heightMap.Length, 64, applyJob);
+        JobHandle erosionHandle = erosionJob.Schedule(heightMap.Length, 64, heightHandle);
 
         JobHandle meshHandle = meshJob.Schedule(vertexCount, 64, erosionHandle);
         
         meshHandle.Complete();
 
 
-        maskMap.Dispose();
         heightMap.Dispose();
+        erodedHeightMap.Dispose();
         vertexAttributes.Dispose();
 
 

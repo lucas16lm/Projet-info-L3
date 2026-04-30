@@ -35,6 +35,7 @@ public class NoiseMapVizualizer : MonoBehaviour
         GetComponent<Renderer>().sharedMaterial.mainTexture = texture;
     }
 
+    /*
     public void GenerateTexture()
     {
         NativeArray<float> maskMap = new NativeArray<float>(size * size, Allocator.TempJob);
@@ -63,6 +64,7 @@ public class NoiseMapVizualizer : MonoBehaviour
             lacunarity = lacunarity
 
         };
+    
 
         NativeArray<Color32> colorMap = texture.GetRawTextureData<Color32>();
 
@@ -89,10 +91,11 @@ public class NoiseMapVizualizer : MonoBehaviour
         maskMap.Dispose();
         heightMap.Dispose();
     }
+    */
 
     private void Update()
     {
-        GenerateTexture();
+        //GenerateTexture();
     }
 
 

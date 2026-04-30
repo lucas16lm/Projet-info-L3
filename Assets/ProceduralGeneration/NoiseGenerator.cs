@@ -73,155 +73,140 @@ public struct MeshMakerJob : IJobParallelFor
     }
 }
 
+
 [BurstCompile]
-public struct FractalSimplexJob : IJobParallelFor
+public struct HeightMapJob : IJobParallelFor
 {
     [WriteOnly] public NativeArray<float> result;
     public int width;
-    public float scale;
     public float xOffset;
     public float yOffset;
+    
+    public float islandsScale;
+    public int islandsOctaves;
+    public float islandsPersistance;
+    public float islandsLacunarity;
+    public float islandspower;
+    public float islandsProximityFactor;
 
-    public int octaves;
-    public float persistence;
-    public float lacunarity;
-    public float power;
+    public float warpScale;
+    public float warpStrength;
+
+    public float mountainsScale;
+    public int mountainsOctaves;
+    public float mountainsPersistance;
+    public float mountainsLacunarity;
+    public float mountainsPower;
+
+    public float flatScale;
+    public int flatOctaves;
+    public float flatPersistance;
+    public float flatLacunarity;
+    public float flatPower;
 
     public void Execute(int index)
     {
         int x = index % width;
         int y = index / width;
 
-        float2 worldPos = new float2(xOffset + x, yOffset + y);
+        float2 basePos = new float2(xOffset + x, yOffset + y);
 
-        float amplitude = 1f;
-        float frequency = 1f;
-        float noiseHeight = 0f;
-        float totalAmplitude = 0f;
+
+        float islandNoise = IslandsFractal(basePos);
+        float mountainNoise = MountainFractal(basePos);
+
+        float transitionMask = math.smoothstep(0f, 0.5f, mountainNoise);
+        float landTerrain = math.lerp(0.35f, mountainNoise, transitionMask);
+
+        float finalHeight = landTerrain * islandNoise;
+        result[index] = finalHeight;
+        //result[index] = islandNoise;
+    }
+
+    private float IslandsFractal(float2 pos)
+    {
+        float2 warpSamplePos = pos * (1f / warpScale);
+
+        float2 warpOffset = new float2(
+            noise.snoise(warpSamplePos),
+            noise.snoise(warpSamplePos + new float2(100f, 100f))
+        ) * warpStrength;
+
+        float2 worldPos = (pos + warpOffset);
+
+        int octaves = islandsOctaves;
+        float persistance = islandsPersistance;
+        float lacunarity = islandsLacunarity;
+
+        float noiseValue = 0f;
+        float amplitude = 1;
+        float frequency = 1f / islandsScale;
+        float amplitudeMax = 0f;
 
         for (int i = 0; i < octaves; i++)
         {
-            float simplex = noise.snoise(worldPos * (1f/scale) * frequency);
-            simplex = (simplex + 1) * 0.5f;
+            amplitudeMax += amplitude;
 
-            noiseHeight += simplex * amplitude;
-            totalAmplitude += amplitude;
+            float islandNoise = 1 - math.saturate(noise.cellular(worldPos * frequency).x * islandsProximityFactor);
+            islandNoise = math.pow(islandNoise, islandspower);
+            islandNoise = math.smoothstep(0, 1, islandNoise);
 
-            amplitude *= persistence;
+            noiseValue += islandNoise * amplitude;
+            amplitude *= persistance;
             frequency *= lacunarity;
         }
 
-        float finalValue = noiseHeight / totalAmplitude;
-        finalValue = math.pow(finalValue, power);
-        result[index] = math.saturate(finalValue);
+        float finalValue = noiseValue / amplitudeMax;
+
+        return finalValue;
     }
+
+    private float MountainFractal(float2 pos)
+    {
+        int octaves = mountainsOctaves;
+        float persistance = mountainsPersistance;
+        float lacunarity = mountainsLacunarity;
+
+        float noiseValue = 0f;
+        float amplitude = 1;
+        float frequency = 1f / mountainsScale;
+        float amplitudeMax = 0f;
+
+        for (int i = 0; i < octaves; i++)
+        {
+            amplitudeMax += amplitude;
+
+            float ridge = 1f - math.abs(noise.snoise(pos * frequency));
+            ridge = math.smoothstep(0,1, ridge);
+            ridge = math.pow(ridge, mountainsPower);
+
+            noiseValue += ridge * amplitude;
+            amplitude *= persistance;
+            frequency *= lacunarity;
+        }
+
+        return noiseValue/amplitudeMax;
+    }
+
+    
 }
 
 [BurstCompile]
-public struct FallOfJob : IJobParallelFor
+public struct ErosionJob : IJobParallelFor
 {
+    [ReadOnly] public NativeArray<float> heightMap;
     [WriteOnly] public NativeArray<float> result;
-    public int p;
-    public int size;
-    public int centerX;
-    public int centerY;
-    public float radius;
-    public float innerRadius;
-    public float power;
+    public int width;
+    public float xOffset;
+    public float yOffset;
 
-    public float noiseScale;
-    public float noiseStrength;
+  
 
     public void Execute(int index)
     {
-        if (radius == 0)
-        {
-            result[index] = 0;
-            return;
-        }
+        int x = index % width;
+        int y = index / width;
 
-        int x = index % size;
-        int y = index / size;
-
-        float2 pos = new float2(x, y);
-        float offsetX = noise.snoise(pos * noiseScale) * noiseStrength;
-        float offsetY = noise.snoise(new float2(pos.x + 1000f, pos.y + 1000f) * noiseScale) * noiseStrength;
-
-        float dx = math.abs((x + offsetX) - centerX);
-        float dy = math.abs((y + offsetY) - centerY);
-
-
-        float d = 0;
-        if (p >= 6)
-        {
-            d = math.max(dx, dy);
-        }
-        else if (p == 2)
-        {
-            d = math.sqrt(dx * dx + dy * dy);
-        }
-        else
-        {
-            float a = math.pow(dx, p);
-            float b = math.pow(dy, p);
-            d = math.pow(a + b, 1.0f / p);
-        }
-
-        float falloffRange = math.max(0.0001f, radius - innerRadius);
-        float noiseValue = 1f - math.saturate((d - innerRadius) / falloffRange);
-
-        result[index] = math.pow(noiseValue, power);
-    }
-}
-
-[BurstCompile]
-public struct CoastalErosionJob : IJobParallelFor
-{
-    public NativeArray<float> map;
-
-    public float seaLevel;
-    public float waveRange;
-    public float erosionForce; // Ex: 0.05f pour une érosion douce par itération
-    public float sedimentationRate; // Ex: 0.01f pour combler lentement les abysses
-
-    public void Execute(int index)
-    {
-        float height = map[index];
-        float distToSeaLevel = math.abs(height - seaLevel);
-
-        // 1. Action des vagues (Création de plages et hauts-fonds)
-        if (distToSeaLevel < waveRange)
-        {
-            // La force est de 1.0 exactement au niveau de la mer, et tombe à 0 sur les bords.
-            float force = 1.0f - (distToSeaLevel / waveRange);
-
-            // On adoucit la courbe d'impact pour un résultat plus naturel
-            force = force * force;
-
-            // On "tire" le terrain vers le niveau de la mer.
-            // Cela rabote les falaises et remblaie les zones juste sous l'eau, formant une plage.
-            map[index] = math.lerp(height, seaLevel, force * erosionForce);
-        }
-        // 2. Sédimentation des fonds marins (Loin de l'agitation des vagues)
-        else if (height < seaLevel - waveRange)
-        {
-            float depth = seaLevel - height;
-
-            // Les sédiments s'accumulent doucement en fonction de la profondeur
-            map[index] = height + (depth * sedimentationRate);
-        }
-    }
-}
-
-[BurstCompile]
-public struct ApplyMaskJob : IJobParallelFor
-{
-    public NativeArray<float> result;
-    [ReadOnly] public NativeArray<float> mask;
-
-    public void Execute(int index)
-    {
-        //result[index] = math.saturate(result[index] * mask[index]);
-        result[index] = math.saturate(result[index] - (1 - mask[index]));
+        result[index] = heightMap[index];
     }
 }
