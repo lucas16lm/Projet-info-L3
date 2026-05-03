@@ -43,7 +43,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
-  m_LockedProperties: _VertexColorWaveFlattening
+  m_LockedProperties: _DistanceNormalsOn _RefractionStrength _VertexColorWaveFlattening
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -166,10 +166,10 @@ Material:
     - _Cutoff: 0.5
     - _Depth: 2.42
     - _DepthExp: 1
-    - _DepthHorizontal: 0.01
+    - _DepthHorizontal: 0.5
     - _DepthMode: 0
     - _DepthTexture: 1
-    - _DepthVertical: 8
+    - _DepthVertical: 1
     - _DisableDepthTexture: 0
     - _DistanceFoamTiling: 0.2
     - _DistanceNormalsOn: 1
@@ -323,7 +323,7 @@ Material:
     - _ZClip: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.019607838, g: 0.22185782, b: 0.34901962, a: 1}
+    - _BaseColor: {r: 0, g: 0.13271709, b: 0.3679245, a: 0.98039216}
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _DepthMapBounds: {r: -402.3, g: -459.43, b: 0.0012693577, a: 0}
     - _Direction: {r: 1, g: 1, b: 0, a: 0}
@@ -331,13 +331,13 @@ Material:
     - _DistanceNormalsFadeDist: {r: 10, g: 128.07892, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
-    - _FoamCrestMinMaxHeight: {r: 0.8910127, g: 2.4028106, b: 0, a: 0}
+    - _FoamCrestMinMaxHeight: {r: 0.45198834, g: 2.3662252, b: 0, a: 0}
     - _FoamTiling: {r: 0.089999974, g: 0.089999974, b: 0, a: 0}
     - _HorizonColor: {r: 0.50953066, g: 5.8970256, b: 6.3541465, a: 0}
     - _IntersectionColor: {r: 1, g: 1, b: 1, a: 1}
     - _NormalTiling: {r: 0.020000014, g: 0.020000014, b: 0, a: 0}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ShallowColor: {r: 0, g: 2, b: 1.654799, a: 1}
+    - _ShallowColor: {r: 0, g: 2, b: 1.654799, a: 0.98039216}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _WaterColor: {r: 0.21176466, g: 0.6745098, b: 1, a: 1}
     - _WaterShallowColor: {r: 0, g: 0.9394503, b: 1, a: 1}

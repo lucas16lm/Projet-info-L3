@@ -224,10 +224,10 @@ Material:
     - _ReceiveShadows: 1
     - _ReceiveShadowsOff: 1
     - _SandBlend: 3
-    - _SandHeight: 22.2
+    - _SandHeight: 22.54
     - _SecondNormalPower: 1
     - _SlopeBlend: 0.101
-    - _SlopeThreshold: 0.909
+    - _SlopeThreshold: 0.779
     - _Smoothness: 0.5
     - _SmoothnessPower: 0
     - _SmoothnessTextureChannel: 0

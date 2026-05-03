@@ -12,48 +12,30 @@ public static class NoiseGenerator
     
 }
 
-
-[BurstCompile]
-public struct ColorConverterJob : IJobParallelFor
-{
-    [WriteOnly] public NativeArray<Color32> output;
-    [ReadOnly] public NativeArray<float> input;
-
-    public void Execute(int index)
-    {
-        byte c = (byte)(math.saturate(input[index]) * 255);
-        output[index] = new Color32(c, c, c, 255);
-    }
-}
-
 [BurstCompile]
 public struct MeshMakerJob : IJobParallelFor
 {
     [ReadOnly] public NativeArray<float> heightMap;
+    [WriteOnly] public NativeArray<float3> vertices;
 
-    [WriteOnly]
-    [NativeDisableContainerSafetyRestriction]
-    public NativeArray<float3> vertices;
-    [WriteOnly]
-    [NativeDisableContainerSafetyRestriction]
-    public NativeArray<int> triangles;
-    [WriteOnly]
-    [NativeDisableContainerSafetyRestriction]
-    public NativeArray<float2> uvs;
+    [NativeDisableParallelForRestriction]
+    [WriteOnly] public NativeArray<int> triangles;
 
     public int width;
     public float heightMultiplier;
+    public int meshSimplificationIncrement;
 
     public void Execute(int index)
     {
         int x = index % width;
         int z = index / width;
-
         float y = heightMap[index] * heightMultiplier;
-        vertices[index] = new float3(x, y, z);
-
-        float u = math.saturate(heightMap[index]);
-        uvs[index] = new float2(u, 0f);
+        
+        vertices[index] = new float3(
+            x * meshSimplificationIncrement,
+            y,
+            z * meshSimplificationIncrement
+        );
 
         if (x < width - 1 && z < width - 1)
         {
@@ -81,7 +63,8 @@ public struct HeightMapJob : IJobParallelFor
     public int width;
     public float xOffset;
     public float yOffset;
-    
+    public int meshSimplificationIncrement;
+
     public float islandsScale;
     public int islandsOctaves;
     public float islandsPersistance;
@@ -98,25 +81,22 @@ public struct HeightMapJob : IJobParallelFor
     public float mountainsLacunarity;
     public float mountainsPower;
 
-    public float flatScale;
-    public int flatOctaves;
-    public float flatPersistance;
-    public float flatLacunarity;
-    public float flatPower;
-
     public void Execute(int index)
     {
         int x = index % width;
         int y = index / width;
 
-        float2 basePos = new float2(xOffset + x, yOffset + y);
 
+        float2 basePos = new float2(
+            xOffset + (x * meshSimplificationIncrement),
+            yOffset + (y * meshSimplificationIncrement)
+        );
 
         float islandNoise = IslandsFractal(basePos);
         float mountainNoise = MountainFractal(basePos);
 
         float transitionMask = math.smoothstep(0f, 0.5f, mountainNoise);
-        float landTerrain = math.lerp(0.35f, mountainNoise, transitionMask);
+        float landTerrain = math.lerp(0.35f, mountainNoise, transitionMask*0.8f);
 
         float finalHeight = landTerrain * islandNoise;
         result[index] = finalHeight;
@@ -149,7 +129,7 @@ public struct HeightMapJob : IJobParallelFor
 
             float islandNoise = 1 - math.saturate(noise.cellular(worldPos * frequency).x * islandsProximityFactor);
             islandNoise = math.pow(islandNoise, islandspower);
-            islandNoise = math.smoothstep(0, 1, islandNoise);
+            //islandNoise = math.smoothstep(0, 1, islandNoise);
 
             noiseValue += islandNoise * amplitude;
             amplitude *= persistance;
@@ -187,26 +167,46 @@ public struct HeightMapJob : IJobParallelFor
 
         return noiseValue/amplitudeMax;
     }
-
-    
 }
 
-[BurstCompile]
-public struct ErosionJob : IJobParallelFor
-{
-    [ReadOnly] public NativeArray<float> heightMap;
-    [WriteOnly] public NativeArray<float> result;
-    public int width;
-    public float xOffset;
-    public float yOffset;
 
-  
+[BurstCompile]
+public struct JitteredGridParallelJob : IJobParallelFor
+{
+    [WriteOnly] public NativeArray<float2> results;
+
+    public float chunkSize;
+    public float cellSize;
+    public int gridWidth;
+
+    public float randomness;
+    public float treeProbability;
+    public uint chunkSeed;
 
     public void Execute(int index)
     {
-        int x = index % width;
-        int y = index / width;
+        int x = index % gridWidth;
+        int y = index / gridWidth;
 
-        result[index] = heightMap[index];
+        uint cellHash = math.hash(new uint3((uint)x, (uint)y, chunkSeed));
+        var cellRandom = new Unity.Mathematics.Random(cellHash == 0 ? 1 : cellHash);
+
+        if (cellRandom.NextFloat() <= treeProbability)
+        {
+            float2 cellCenter = new float2(x * cellSize + cellSize * 0.5f, y * cellSize + cellSize * 0.5f);
+
+            float maxOffset = (cellSize * 0.5f) * randomness;
+            float2 offset = cellRandom.NextFloat2(new float2(-maxOffset, -maxOffset), new float2(maxOffset, maxOffset));
+
+            float2 finalPos = cellCenter + offset;
+
+            if (finalPos.x >= 0 && finalPos.x < chunkSize && finalPos.y >= 0 && finalPos.y < chunkSize)
+            {
+                results[index] = finalPos;
+                return;
+            }
+        }
+
+        results[index] = new float2(-1f, -1f);
     }
 }

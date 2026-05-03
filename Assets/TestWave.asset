@@ -40,7 +40,7 @@ Texture2D:
   m_ColorSpace: 0
   m_PlatformBlob: 
   image data: 64
-  _typelessdata: 0a2b9455ee3d003cc6315654ed3f003c55343a52ce42003c3633c454ae44003c0000000000001e310000000000008533000000000000bc270000000000006d2d
+  _typelessdata: 1b2c9455ee3d003cbd325654ed3f003c0e353a52ce42003c3534c454ae44003c0000000000001e310000000000008533000000000000bc270000000000006d2d
   m_StreamData:
     serializedVersion: 2
     offset: 0
@@ -59,7 +59,7 @@ MonoBehaviour:
   m_Name: TestWave
   m_EditorClassIdentifier: sc.stylizedwater3.runtime::StylizedWater3.WaveProfile
   waveLengthMultiplier: 1
-  amplitudeMultiplier: 0.3
+  amplitudeMultiplier: 0.35
   steepnessMultiplier: 1
   steepnessClamping: 1
   waveLengthCurve:
