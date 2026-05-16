@@ -17,7 +17,6 @@ public struct MeshMakerJob : IJobParallelFor
 {
     [ReadOnly] public NativeArray<float> heightMap;
     [WriteOnly] public NativeArray<float3> vertices;
-
     [NativeDisableParallelForRestriction]
     [WriteOnly] public NativeArray<int> triangles;
 
@@ -36,6 +35,7 @@ public struct MeshMakerJob : IJobParallelFor
             y,
             z * meshSimplificationIncrement
         );
+        
 
         if (x < width - 1 && z < width - 1)
         {

@@ -124,7 +124,6 @@ public class ChunkManager : MonoBehaviour
             chunkGO.transform.parent = transform;
             chunk = chunkGO.AddComponent<Chunk>();
             chunk.gameObject.GetComponent<MeshRenderer>().material = mat;
-            //chunk.gameObject.AddComponent<MeshCollider>();
         }
 
         chunk.transform.position = new Vector3(coord.x * chunkSize, 0, coord.y * chunkSize);

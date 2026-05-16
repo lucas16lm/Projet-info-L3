@@ -31,7 +31,6 @@ public class ShipMovement : MonoBehaviour
 
     void OnEnable()
     {
-        // 1. Initialiser le sampler avec le nombre exact de points sous la coque
         heightSampler = new HeightQuerySystem.Sampler();
         if (buoys != null && buoys.Count > 0)
         {
@@ -41,8 +40,6 @@ public class ShipMovement : MonoBehaviour
 
     void OnDisable()
     {
-        // 2. CRUCIAL : Libérer la mémoire quand le bateau est détruit/désactivé
-        // (Comme on l'a vu dans le code de Staggart, sinon cela crée des fuites de mémoire)
         if (heightSampler != null)
         {
             heightSampler.Dispose();
