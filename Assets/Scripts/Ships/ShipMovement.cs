@@ -157,4 +157,9 @@ public class ShipMovement : MonoBehaviour
             ship.CloseSails();
         }
     }
+
+    public void RemoveBuoyancyForce()
+    {
+        buoyancyForce = 0;
+    }
 }

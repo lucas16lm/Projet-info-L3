@@ -1,9 +1,11 @@
 using Cinemachine;
 using StylizedWater3;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(ShipMovement))]
 public class Ship : MonoBehaviour
 {
     
@@ -11,6 +13,8 @@ public class Ship : MonoBehaviour
     [SerializeField] private List<GameObject> sailsDown;
 
     private CinemachineFreeLook freeLookCam;
+
+    [SerializeField] private int health = 100;
  
 
  
@@ -54,5 +58,33 @@ public class Ship : MonoBehaviour
         {
             sail.SetActive(false);
         }
+    }
+
+    public void Damage(int damage)
+    {
+        health -= damage;
+        if (health <= 0)
+        {
+            Sink();
+        }
+    }
+    
+    [ContextMenu("Sink ship")]
+    public void Sink()
+    {
+        transform.GetComponent<ShipMovement>().RemoveBuoyancyForce();
+        
+        Collider[] colliders = transform.GetComponentsInChildren<Collider>();
+        foreach(Collider collider in colliders)
+        {
+            collider.enabled = false;
+        }
+        StartCoroutine(TimedDestroy());
+    }
+
+    private IEnumerator TimedDestroy()
+    {
+        yield return new WaitForSeconds(10f);
+        Destroy(gameObject);
     }
 }
