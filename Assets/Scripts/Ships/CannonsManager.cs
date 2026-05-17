@@ -6,6 +6,7 @@ public class CannonsManager : MonoBehaviour
 {
     [SerializeField] private GameObject shotParticles;
     [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private GameObject impactPrefab;
     [SerializeField] private AudioClip shootSound;
 
     [SerializeField] private List<Cannon> leftCannons;
@@ -41,7 +42,7 @@ public class CannonsManager : MonoBehaviour
     {
         foreach (Cannon cannon in cannons)
         {
-            StartCoroutine(cannon.Shoot(bulletPrefab, shotParticles, shootDamage, direction, shootSound));
+            StartCoroutine(cannon.Shoot(bulletPrefab, shotParticles, shootDamage, direction, shootSound, impactPrefab));
         }
     }
 

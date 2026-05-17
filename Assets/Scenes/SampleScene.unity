@@ -12984,6 +12984,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CannonsManager
   shotParticles: {fileID: 1833268098726028, guid: f72f0eb4a0fb5934fab797add8da8711, type: 3}
   bulletPrefab: {fileID: 127120, guid: ead5742cdeee78643b4937704c90bf66, type: 3}
+  impactPrefab: {fileID: 0}
   shootSound: {fileID: 8300000, guid: fde76a23c3541e047948874381c4668e, type: 3}
   leftCannons:
   - {fileID: 900919313}
@@ -53476,6 +53477,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CannonsManager
   shotParticles: {fileID: 1833268098726028, guid: f72f0eb4a0fb5934fab797add8da8711, type: 3}
   bulletPrefab: {fileID: 127120, guid: ead5742cdeee78643b4937704c90bf66, type: 3}
+  impactPrefab: {fileID: 0}
   shootSound: {fileID: 8300000, guid: fde76a23c3541e047948874381c4668e, type: 3}
   leftCannons:
   - {fileID: 854708292}
@@ -94928,6 +94930,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CannonsManager
   shotParticles: {fileID: 1833268098726028, guid: f72f0eb4a0fb5934fab797add8da8711, type: 3}
   bulletPrefab: {fileID: 127120, guid: ead5742cdeee78643b4937704c90bf66, type: 3}
+  impactPrefab: {fileID: 0}
   shootSound: {fileID: 8300000, guid: fde76a23c3541e047948874381c4668e, type: 3}
   leftCannons:
   - {fileID: 430542149}
@@ -102413,7 +102416,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4046979888916595016}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.023289349, y: -0.3612035, z: 0.009024499, w: 0.93215245}
+  m_LocalRotation: {x: 0.023289692, y: -0.3612035, z: 0.00902467, w: 0.93215245}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -136888,6 +136891,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CannonsManager
   shotParticles: {fileID: 1833268098726028, guid: f72f0eb4a0fb5934fab797add8da8711, type: 3}
   bulletPrefab: {fileID: 127120, guid: ead5742cdeee78643b4937704c90bf66, type: 3}
+  impactPrefab: {fileID: 1879769179923522, guid: 65932b7368590234d8163da03c2055d8, type: 3}
   shootSound: {fileID: 8300000, guid: fde76a23c3541e047948874381c4668e, type: 3}
   leftCannons:
   - {fileID: 90428961}

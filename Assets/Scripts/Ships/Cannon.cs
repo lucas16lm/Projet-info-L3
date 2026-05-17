@@ -12,7 +12,7 @@ public class Cannon : MonoBehaviour
         audioSource.spatialBlend = 0.75f;
     }
 
-    public IEnumerator Shoot(GameObject bulletPrefab, GameObject shootParticle, int shootDamage, Vector3 direction, AudioClip shootSound)
+    public IEnumerator Shoot(GameObject bulletPrefab, GameObject shootParticle, int shootDamage, Vector3 direction, AudioClip shootSound, GameObject impactPrefab)
     {
         yield return new WaitForSeconds(Random.Range(0, 1f));
 
@@ -23,7 +23,7 @@ public class Cannon : MonoBehaviour
         particle.transform.position = transform.position + direction * 2;
         particle.transform.rotation = Quaternion.LookRotation(direction);
 
-        bullet.GetComponent<Bullet>().Init(shootDamage);
+        bullet.GetComponent<Bullet>().Init(shootDamage, impactPrefab);
         bullet.GetComponent<Rigidbody>().AddForce((direction+Vector3.up*0.1f) * 1000, ForceMode.Impulse);
         audioSource.PlayOneShot(shootSound);
 
