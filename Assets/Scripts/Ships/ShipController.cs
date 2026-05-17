@@ -11,6 +11,7 @@ public class ShipController : MonoBehaviour
     private InputAction moveAction;
     private InputAction exitAction;
     private InputAction cruiseAction;
+    private InputAction attackAction;
 
 
     private Vector2 moveInput;
@@ -21,6 +22,7 @@ public class ShipController : MonoBehaviour
         moveAction.canceled += ResetInput;
         exitAction.performed += ExitShip;
         cruiseAction.performed += ToggleCruise;
+        attackAction.performed += Attack;
     }
 
     private void OnDisable()
@@ -32,6 +34,7 @@ public class ShipController : MonoBehaviour
         moveAction.canceled -= ResetInput;
         exitAction.performed -= ExitShip;
         cruiseAction.performed -= ToggleCruise;
+        attackAction.performed -= Attack;
     }
 
     private void Awake()
@@ -39,6 +42,7 @@ public class ShipController : MonoBehaviour
         moveAction = InputSystem.actions.FindAction("Move");
         exitAction = InputSystem.actions.FindAction("Interact");
         cruiseAction = InputSystem.actions.FindAction("Cruise");
+        attackAction = InputSystem.actions.FindAction("Attack");
 
         ship = GetComponent<Ship>();
         mover = GetComponent<ShipMovement>();
@@ -82,5 +86,19 @@ public class ShipController : MonoBehaviour
     private void ToggleCruise(InputAction.CallbackContext context)
     {
         mover.ToggleCruise();
+    }
+
+    private void Attack(InputAction.CallbackContext context)
+    {
+        Vector3 camForward = Camera.main.transform.forward;
+
+        if(Vector3.Dot(camForward, transform.right) > 0)
+        {
+            GetComponent<CannonsManager>().ShootRight();
+        }
+        else
+        {
+            GetComponent<CannonsManager>().ShootLeft();
+        }
     }
 }
