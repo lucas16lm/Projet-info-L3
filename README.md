@@ -1,4 +1,6 @@
 # Endless Horizon
+[Lien vidéo de démonstration](https://www.youtube.com/watch?v=CwnOURzHie8)
+
 ## Pitch
 Endless Horizon est un jeu se déroulant dans un monde ouvert et fictif fortement
 inspiré de l’âge d’or de la piraterie du 17ème siècle. On y incarne un capitaine pirate
