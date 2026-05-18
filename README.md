@@ -23,3 +23,6 @@ Il suffit de télécharger le fichier zip dans "release", de l'extraire et de la
 Les déplacements se font avec les touches **ZQSD** et la caméra se déplace par les mouvements de la souris. Pour piloter un navire, il faut appuyer sur la touche **E** en étant face au gouvernail de ce dernier. 
 ### En mer
 Pour diriger un navire, il faut utiliser les touches **ZQSD**. La touche **V** permet d'ouvrir ou de fermer les voiles et un **clic gauche** permet de tirer avec les canons dans la direction pointée par la caméra.
+
+## Code
+Le jeu est programmé en C# avec le moteur Unity. Les scripts des systèmes implémentés se trouvent dans le dossier [Scripts](Assets/Scripts).
